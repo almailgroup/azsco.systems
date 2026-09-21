@@ -128,7 +128,15 @@ check('no WEB3FORMS_KEY -> 503', r.status, 503);
 const src = await (await import('node:fs/promises')).readFile(
   new URL('./chat-worker.js', import.meta.url), 'utf8');
 check('prompt block generated', /const FACTS = `\n+COMPANY/.test(src), true);
-check('Security Systems present in prompt', src.includes('Security Systems: advanced'), true);
+// The site is now a catalogue, so what has to survive into the prompt is the
+// catalogue itself: an assistant missing a category would deny AZSCO sells it.
+for (const cat of ['Video Surveillance', 'Intrusion & Fire', 'Access Control', 'Radio & Networking']) {
+  check(`category in prompt: ${cat}`, src.includes(cat), true);
+}
+// With no prices anywhere on the site, an assistant that quotes one is a
+// business problem, not a cosmetic one -- so the rule has to be in the prompt.
+check('no-pricing rule in prompt', /Never quote a price/.test(src), true);
+check('quote-by-survey explained in prompt', src.includes('free site survey'), true);
 check('hours correct in prompt', src.includes('8:30-16:30'), true);
 
 globalThis.fetch = realFetch;

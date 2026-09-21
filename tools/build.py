@@ -79,21 +79,38 @@ COMPANY
 - Certified ISO 9001:2015 for quality management, and compliant with
   Anti-Money Laundering standards.
 
-WHAT AZSCO DOES
-AZSCO provides security manpower and security systems. Services:
-- Facility Guarding: trained, uniformed officers guarding apartments, malls,
-  banks, stores, offices, compounds, industrial sites and events.
-- VIP Protection & Rapid Intervention: physically and technically qualified
-  personal guards for individuals needing a high level of security, plus
-  rapid-intervention response to critical sites.
-- Central Operations Room: a 24/7 monitoring and communications room that
-  keeps continuous contact with every AZSCO-guarded site and dispatches a
-  rapid response to any incident.
-- Security Patrols: scheduled patrols by trained officers equipped with the
-  necessary tools, reinforcing the security of guarded sites and areas.
-- Security Systems: advanced, site-specific systems -- surveillance cameras
-  and fire and theft alarm systems -- installed and monitored by AZSCO, with
-  alerts routed to the Central Operations Room for rapid patrol intervention.
+WHAT AZSCO SELLS
+AZSCO supplies, installs and maintains security systems, and also provides
+security manpower. The website is a product catalogue in four categories:
+- Video Surveillance: IP cameras (bullet, vandal-resistant dome, PTZ with
+  optical zoom) and network video recorders with RAID storage.
+- Intrusion & Fire: wireless alarm control hubs, motion detectors, door and
+  window contacts, and combined smoke and heat detectors.
+- Access Control: multi-door controllers, fingerprint and card readers, time
+  and attendance terminals, and tripod turnstiles.
+- Radio & Networking: digital two-way radios, LTE network radios, industrial
+  cellular routers, and managed PoE switches.
+
+HOW BUYING WORKS
+- There are no prices on the site or in this chat. Security systems are quoted
+  per site because cabling, mounting, power, existing infrastructure and device
+  count all change the figure.
+- The normal sequence is: free site survey, then a written quote covering
+  equipment, installation and the first year of maintenance as one package.
+- Visitors add products to a quote list on the site and send it with their site
+  details. The list is stored in their own browser until they submit it.
+- Catalogue entries describe the class of equipment AZSCO specifies, not a fixed
+  manufacturer part number. The exact model is chosen after the survey.
+- AZSCO prefers to install what it supplies, and does not warrant an
+  installation it did not carry out. It can often take over and maintain a
+  system installed by someone else after surveying it.
+
+SERVICES ALONGSIDE THE PRODUCTS
+- Facility Guarding, VIP Protection & Rapid Intervention, Security Patrols, and
+  a 24/7 Central Operations Room that monitors guarded and alarmed sites and
+  dispatches a rapid response.
+- Installation, commissioning, scheduled preventive maintenance, warranty on
+  both equipment and installation work, and staff training.
 
 OTHER FACTS
 - Officers are screened, licensed, uniformed, trained (first aid,
@@ -103,12 +120,10 @@ OTHER FACTS
   Chadian, Nigerian, Nepalese and stateless individuals.
 - Serves government, commercial, financial, industrial, residential and many
   other sectors across Kuwait.
-- Technology partners whose equipment powers AZSCO's Security Systems service
-  and Central Operations Room monitoring: Ajax, Rasilient, Avigilon,
-  Teltonika, Inrico, Hikvision, Pelco and Motorola.
+- The eight manufacturer lines behind the catalogue: Ajax, Rasilient,
+  Avigilon, Teltonika, Inrico, Hikvision, Pelco and Motorola.
 - Clients include Radisson Blu Hotel Kuwait, Millennium Hotels and Resorts,
-  Kuwait Ports Authority, Alghanim Industries and Alnasser, among others --
-  see the Clients page for more.
+  Kuwait Ports Authority, Alghanim Industries and Alnasser, among others.
 - A free site survey is the normal first step for a new enquiry.
 """
 
@@ -154,15 +169,9 @@ SITE_URL = "https://www.azsco.systems"
 # site is built -- the homepage IS the root, not a named page beneath it. A
 # /home/ alias is still written by write_redirects() below, so a link or a
 # typed "azsco.systems/home" still arrives, it just forwards to "/".
-ROUTES = {
-    "index.html": "",
-    "about.html": "about",
-    "services.html": "services",
-    "clients.html": "clients",
-    "partners.html": "partners",
-    "contact.html": "contact",
-    "privacy-policy.html": "privacy-policy",
-}
+# ROUTES is built further down, from the catalogue itself, so a category or
+# product cannot exist in the data and be missing from the URL map.
+
 
 def path_for(lang, fname):
     """Root-relative clean URL for a page: '/', '/about/', '/ar/services/'."""
@@ -334,665 +343,1065 @@ CHAT = {
 
 # No "Home" item: the logo links to the home page in both the header and the
 # mobile drawer, so a separate entry would be a second route to the same place.
+# ============================================================ catalogue model
+# This site sells security systems hardware. The catalogue is a two-level
+# model -- CATEGORIES, then PRODUCTS belonging to one category each -- and
+# every page below is generated from it, so the navigation, the filters, the
+# category pages, the product pages and the sitemap cannot disagree about
+# what is in stock.
+#
+# Pricing is deliberately absent. Security systems are quoted per site after
+# a survey, so a product's call to action adds it to a quote basket (held in
+# the browser, see assets/js/main.js) rather than a cart.
+
+# Extra interface strings for the catalogue. The furniture the original
+# services site needed (UI above) is unchanged.
+UI.update({
+    "browse":      ("Browse Products", "تصفّح المنتجات"),
+    "all_products": ("All Products", "جميع المنتجات"),
+    "add_quote":   ("Add to quote", "أضف إلى طلب العرض"),
+    "added":       ("Added", "تمت الإضافة"),
+    "view_quote":  ("View quote", "عرض الطلب"),
+    "quote_req":   ("Request a Quote", "اطلب عرض سعر"),
+    "your_quote":  ("Your Quote", "طلب العرض"),
+    "quote_items": ("items in your quote", "صنف في طلبك"),
+    "filters":     ("Filter", "تصفية"),
+    "clear_all":   ("Clear all", "مسح الكل"),
+    "category":    ("Category", "الفئة"),
+    "brand_lines": ("Brand line", "العلامة التجارية"),
+    "showing":     ("Showing", "عرض"),
+    "of":          ("of", "من"),
+    "products":    ("products", "منتج"),
+    "no_match":    ("No products match those filters.",
+                    "لا توجد منتجات مطابقة لهذه التصفية."),
+    "no_match_cta": ("Clear the filters, or tell us what you need and we will source it.",
+                     "امسح عوامل التصفية، أو أخبرنا بما تحتاجه وسنقوم بتوفيره."),
+    "specs":       ("Specifications", "المواصفات"),
+    "key_specs":   ("Key specifications", "أبرز المواصفات"),
+    "full_specs":  ("Full specifications", "المواصفات الكاملة"),
+    "highlights":  ("Highlights", "المزايا"),
+    "typical_use": ("Typical applications", "التطبيقات النموذجية"),
+    "related":     ("Related products", "منتجات ذات صلة"),
+    "view_product": ("View product", "عرض المنتج"),
+    "in_category": ("in this category", "في هذه الفئة"),
+    "view_cat":    ("View category", "عرض الفئة"),
+    "remove":      ("Remove", "إزالة"),
+    "qty":         ("Qty", "الكمية"),
+    "quote_empty": ("Your quote is empty", "طلب العرض فارغ"),
+    "quote_empty_t": ("Add products from the catalogue and they will collect here, ready to send to our team in one enquiry.",
+                      "أضف المنتجات من الكتالوج لتتجمّع هنا، جاهزة لإرسالها إلى فريقنا في طلب واحد."),
+    "quote_note":  ("Prices are quoted per site after a free survey, so the catalogue carries specifications rather than price tags.",
+                    "تُحدَّد الأسعار لكل موقع بعد معاينة مجانية، لذا يعرض الكتالوج المواصفات بدلاً من الأسعار."),
+    "supplied_by": ("Supplied from", "يُورَّد من"),
+    "part_of":     ("Part of", "ضمن"),
+    "sku":         ("Reference", "الرمز"),
+    "explore_cat": ("Explore Categories", "تصفّح الفئات"),
+    "all_brands":  ("All Brands", "جميع العلامات"),
+    "installed":   ("Supplied, installed and maintained by AZSCO",
+                    "توريد وتركيب وصيانة من أزسكو"),
+})
+
+# No "Home" item: the logo links home from both the header and the drawer.
+# Products leads, because the catalogue is what this site is for.
 NAV = [
-    (("About", "من نحن"), "about.html", []),
-    (("Services", "خدماتنا"), "services.html", [
-        (("All Services", "جميع الخدمات"), "services.html"),
-        (("Facility Guarding", "حراسة المنشآت"), "services.html#guarding"),
-        (("VIP Protection &amp; Rapid Intervention", "حماية الشخصيات والتدخل السريع"), "services.html#protection"),
-        (("Central Operations Room", "غرفة عمليات مركزية"), "services.html#operations"),
-        (("Security Patrols", "دوريات أمنية"), "services.html#patrols"),
-        (("Security Systems", "أنظمة أمنية"), "services.html#systems"),
+    (("Products", "المنتجات"), "products.html", [
+        (("All Products", "جميع المنتجات"), "products.html"),
+        (("Video Surveillance", "المراقبة بالفيديو"), "cat-video-surveillance"),
+        (("Intrusion &amp; Fire", "الإنذار والحريق"), "cat-intrusion-fire"),
+        (("Access Control", "التحكم بالدخول"), "cat-access-control"),
+        (("Radio &amp; Networking", "الاتصال والشبكات"), "cat-radio-networking"),
     ]),
-    (("Clients", "عملاؤنا"), "clients.html", []),
-    (("Partners", "شركاؤنا"), "partners.html", []),
+    (("Brands", "العلامات التجارية"), "brands.html", []),
+    (("Support", "التركيب والصيانة"), "support.html", []),
+    (("About", "من نحن"), "about.html", []),
     (("Contact", "اتصل بنا"), "contact.html", []),
 ]
 
 FOOTER = {
-    "blurb": ("AZSCO Security Services Company has been protecting premises, assets and people across Kuwait since 2014, with professionally trained, licensed and closely supervised security personnel.",
-              "تعمل شركة أزسكو لخدمات حراسة المنشآت على حماية المنشآت والممتلكات والأشخاص في جميع أنحاء الكويت منذ عام 2014، بكوادر أمنية مدرّبة ومرخّصة وتخضع لإشراف دقيق."),
-    "company": ("Company", "الشركة"),
-    "services": ("Services", "الخدمات"),
-    "touch": ("Get In Touch", "تواصل معنا"),
-  "email_general": ("General enquiries", "الاستفسارات العامة"),
-  "email_sales": ("Sales &amp; quotations", "المبيعات وعروض الأسعار"),
-    "links": [
-        (("Home", "الرئيسية"), "index.html"),
-        (("About AZSCO", "عن أزسكو"), "about.html"),
-        (("Our Services", "خدماتنا"), "services.html"),
-        (("Our Clients", "عملاؤنا"), "clients.html"),
-        (("Our Partners", "شركاؤنا"), "partners.html"),
-        (("Contact Us", "اتصل بنا"), "contact.html"),
-    ],
+    "blurb": ("AZSCO supplies, installs and maintains security systems across Kuwait — "
+              "surveillance, intrusion and fire detection, access control, and the radio "
+              "and network hardware that ties them together. Established 2014, ISO 9001:2015 certified.",
+              "تقوم أزسكو بتوريد وتركيب وصيانة الأنظمة الأمنية في جميع أنحاء الكويت — "
+              "المراقبة، وكشف التسلل والحريق، والتحكم بالدخول، وأجهزة الاتصال والشبكات التي تربطها معاً. "
+              "تأسست عام 2014، وحاصلة على شهادة الأيزو 9001:2015."),
+    "cat_head": ("Catalogue", "الكتالوج"),
+    "com_head": ("Company", "الشركة"),
+    "con_head": ("Get in touch", "تواصل معنا"),
+    "email_general": ("General enquiries", "الاستفسارات العامة"),
+    "email_sales": ("Sales and quotations", "المبيعات وعروض الأسعار"),
     "rights": ("All rights reserved.", "جميع الحقوق محفوظة."),
     "privacy": ("Privacy Policy", "سياسة الخصوصية"),
     "contact": ("Contact", "اتصل بنا"),
+    "company": [
+        (("Home", "الرئيسية"), "index.html"),
+        (("About AZSCO", "من نحن"), "about.html"),
+        (("Brands", "العلامات التجارية"), "brands.html"),
+        (("Installation &amp; Support", "التركيب والصيانة"), "support.html"),
+        (("Contact", "اتصل بنا"), "contact.html"),
+        (("Privacy Policy", "سياسة الخصوصية"), "privacy-policy.html"),
+    ],
 }
 
 CTA_DEFAULT = (
-    ("Ready to secure what matters most?", "هل أنت مستعد لحماية ما يهمّك؟"),
-    ("Talk to an AZSCO security consultant about a site survey and a tailored proposal for your premises.",
-     "تحدّث مع مستشار أمني من أزسكو حول معاينة الموقع وإعداد عرض مخصّص لمنشأتك."),
+    ("Not sure which system fits your site?",
+     "لست متأكداً من النظام المناسب لموقعك؟"),
+    ("Tell us what you need to protect. We survey the site free of charge, specify the "
+     "equipment, and quote the supply, installation and maintenance as one package.",
+     "أخبرنا بما تريد حمايته. نقوم بمعاينة الموقع مجاناً، ونحدّد المواصفات، "
+     "ونقدّم عرضاً شاملاً للتوريد والتركيب والصيانة."),
 )
 
-# ============================================================ services
-SERVICES = [
-  {"anchor": "guarding", "icon": "shield",
-   "name": ("Facility Guarding", "حراسة المنشآت"),
-   "card": ("A comprehensive range of security services for facilities of every kind, delivered by a team known for its efficiency and professionalism.",
-            "مجموعة شاملة من الخدمات الأمنية لمختلف المنشآت، يقدّمها فريق يتميّز بكفاءته واحترافيته."),
-   "intro": ("AZSCO offers a comprehensive range of security services for various facilities. The security team is known for its efficiency and professionalism, undergoing extensive training that covers emergency handling, surveillance techniques and maintaining site security.",
-             "تقدّم أزسكو مجموعة شاملة من الخدمات الأمنية في مختلف المنشآت. يتميّز فريق الحراسة بكفاءته واحترافيته، حيث يخضع لتدريبات مكثّفة تغطي التعامل مع الحالات الطارئة وتقنيات المراقبة وحفظ الأمن في المواقع."),
-   "points": [
-     ("Static officers for facilities of every kind", "أفراد أمن ثابتون لمختلف أنواع المنشآت"),
-     ("Screened, licensed and uniformed personnel", "كوادر مدقّقة أمنياً ومرخّصة وبزي رسمي"),
-     ("Extensive training in emergency handling", "تدريبات مكثّفة على التعامل مع الحالات الطارئة"),
-     ("Surveillance techniques and site security", "تقنيات المراقبة وحفظ الأمن في المواقع"),
-     ("Day, night and rotating shift patterns", "ورديات صباحية وليلية ودوّارة"),
-   ]},
-  {"anchor": "protection", "icon": "target",
-   "name": ("VIP Protection &amp; Rapid Intervention", "حماية الشخصيات والتدخل السريع"),
-   "card": ("Rapid intervention for critical sites and personal protection for individuals who need a high level of security, through physically and technically qualified guards.",
-            "خدمات تدخّل سريع للمواقع المهمة وحماية شخصية للأفراد الذين يحتاجون إلى مستوى عالٍ من الأمان، عبر حراس مؤهلين جسمانياً وفنياً."),
-   "intro": ("AZSCO provides rapid intervention services to critical sites to ensure security control, along with personal protection services for individuals requiring a high level of security through physically and technically qualified personal guards.",
-             "تقدّم أزسكو خدمات التدخّل السريع للمواقع المهمة لضمان ضبط الأمن، إلى جانب خدمات الحماية الشخصية للأفراد المهمين الذين يحتاجون إلى مستوى عالٍ من الأمان، من خلال توفير حراس شخصيين مؤهلين جسمانياً وفنياً."),
-   "points": [
-     ("Rapid intervention for critical sites", "تدخّل سريع للمواقع المهمة"),
-     ("Personal protection for high-profile individuals", "حماية شخصية للأفراد المهمين"),
-     ("Physically and technically qualified personal guards", "حراس شخصيون مؤهلون جسمانياً وفنياً"),
-     ("Close protection and escort details", "فرق حماية شخصية ومرافقة"),
-     ("Pre-assignment risk assessment", "تقييم للمخاطر قبل التكليف"),
-   ]},
-  {"anchor": "operations", "icon": "eye",
-   "name": ("Central Operations Room", "غرفة عمليات مركزية"),
-   "card": ("A 24/7 operations room equipped with the latest monitoring and communication technology, in continuous contact with every site AZSCO guards.",
-            "غرفة عمليات تعمل على مدار الساعة، مجهّزة بأحدث تقنيات المراقبة والاتصال، وعلى تواصل مستمر مع كل موقع تحرسه أزسكو."),
-   "intro": ("The Central Operations Room is a core AZSCO offering, ensuring safety and rapid response to any security incident. Equipped with the latest monitoring and communication technology, it operates 24/7, allowing continuous surveillance and immediate communication with every site AZSCO guards. The team consists of trained, specialised personnel capable of handling a wide range of security situations.",
-             "تُعدّ غرفة العمليات المركزية إحدى الخدمات الأساسية التي توفّرها أزسكو لضمان الأمان والاستجابة السريعة لأي حادث أمني. وهي مجهّزة بأحدث تقنيات المراقبة والاتصالات، وتعمل على مدار الساعة، مما يتيح مراقبة مستمرة وتواصلاً فورياً مع المواقع الأمنية التي تتولى أزسكو حراستها. يتألّف فريق غرفة العمليات من كوادر مدرّبة ومتخصصة، قادرة على التعامل مع مختلف المواقف الأمنية."),
-   "points": [
-     ("Operating 24 hours a day, 7 days a week", "تعمل على مدار 24 ساعة طوال أيام الأسبوع"),
-     ("Latest monitoring and communication technology", "أحدث تقنيات المراقبة والاتصالات"),
-     ("Continuous surveillance of every guarded site", "مراقبة مستمرة لكل موقع مُحروس"),
-     ("Immediate communication with officers on site", "تواصل فوري مع الأفراد في الموقع"),
-     ("Trained, specialised operations personnel", "كوادر عمليات مدرّبة ومتخصصة"),
-   ]},
-  {"anchor": "patrols", "icon": "route",
-   "name": ("Security Patrols", "دوريات أمنية"),
-   "card": ("Organised, specialised patrols by a trained team of officers, equipped with modern technical means to keep a visible security presence across your site.",
-            "دوريات أمنية متخصصة ومنظّمة يقوم بها فريق مدرّب من حراس الأمن، مزوّدين بوسائل تقنية حديثة للحفاظ على حضور أمني ظاهر في موقعك."),
-   "intro": ("A specialised patrol service that strengthens security and surveillance across the facilities and areas AZSCO guards. It consists of organised patrols carried out by a trained team of security officers, equipped with the necessary equipment and modern technical means to ensure the highest level of efficiency and effectiveness.",
-             "خدمة دوريات أمنية متخصصة تهدف إلى تعزيز الأمان والرقابة على المنشآت والمناطق التي تتولى أزسكو حراستها. تتضمّن دوريات أمنية منظّمة يقوم بها فريق مدرّب من حراس الأمن، مزوّدين بالمعدات اللازمة والوسائل التقنية الحديثة لضمان أعلى مستوى من الكفاءة والفعالية."),
-   "points": [
-     ("Organised, scheduled and random patrol visits", "زيارات دوريات منظّمة ومجدولة وعشوائية"),
-     ("Trained team of security officers", "فريق مدرّب من حراس الأمن"),
-     ("Modern technical means and equipment", "وسائل تقنية حديثة ومعدّات لازمة"),
-     ("Coordinated with the Central Operations Room", "تنسيق مع غرفة العمليات المركزية"),
-     ("Time-stamped patrol reports for every visit", "تقارير دوريات موثّقة بالوقت لكل زيارة"),
-   ]},
-  {"anchor": "systems", "icon": "camera",
-   "name": ("Security Systems", "أنظمة أمنية"),
-   "card": ("Advanced, site-specific security systems — surveillance cameras and fire and theft alarms — feeding real-time alerts to our Central Operations Room.",
-            "أنظمة أمنية متطوّرة ومخصّصة لكل موقع — كاميرات مراقبة وأنظمة إنذار ضد الحريق والسرقة — ترسل تنبيهات فورية إلى غرفة عملياتنا المركزية."),
-   "intro": ("AZSCO offers a comprehensive service in security system solutions, tailored to meet the needs of the facilities and sites under its protection. This service focuses on providing advanced, site-specific security systems, ensuring the highest levels of protection and safety. Solutions include surveillance cameras, fire and theft alarm systems and other modern security technologies, helping monitor activity in and around the facility around the clock and enabling rapid patrol intervention based on alarms received by the Central Operations Room.",
-             "تقدّم أزسكو خدمة متكاملة في مجال حلول الأنظمة الأمنية، مصمّمة خصيصاً لتلبية احتياجات المنشآت والمواقع التي تتولى حمايتها. تركّز هذه الخدمة على توفير نظم أمنية متطوّرة ومخصّصة لكل موقع، بما يضمن أعلى مستويات الحماية والأمان. تشمل الحلول كاميرات مراقبة وأنظمة إنذار ضد الحريق والسرقة وغيرها من التقنيات الأمنية الحديثة، وتساعد في رصد الأنشطة داخل المنشأة وحولها على مدار اليوم، وتتيح إمكانية التدخّل السريع للدوريات بناءً على الإنذارات التي تصل إلى غرفة العمليات المركزية."),
-   "points": [
-     ("Surveillance cameras (CCTV) tailored to each site", "كاميرات مراقبة مخصّصة لكل موقع"),
-     ("Fire and theft alarm systems", "أنظمة إنذار ضد الحريق والسرقة"),
-     ("Round-the-clock monitoring in and around the facility", "مراقبة على مدار الساعة داخل المنشأة وحولها"),
-     ("Alerts routed directly to the Central Operations Room", "تنبيهات تصل مباشرة إلى غرفة العمليات المركزية"),
-     ("Rapid patrol intervention triggered by system alarms", "تدخّل سريع للدوريات عند تفعيل إنذارات الأنظمة"),
-   ]},
+# ---------------------------------------------------------------- categories
+CATEGORIES = [
+    {
+        "slug": "video-surveillance",
+        "icon": "camera",
+        "name": ("Video Surveillance", "المراقبة بالفيديو"),
+        "tag": ("Cameras, recorders and video storage",
+                "كاميرات وأجهزة تسجيل وتخزين"),
+        "lead": ("IP cameras and recording for sites that need to see what happened and "
+                 "who was there. Fixed cameras for entrances, perimeters and corridors, "
+                 "PTZ for wide areas, and recorders sized so footage is still there when "
+                 "it is asked for — feeding our Central Operations Room where the site is monitored.",
+                 "كاميرات شبكية وأنظمة تسجيل للمواقع التي تحتاج إلى معرفة ما حدث ومَن كان هناك. "
+                 "كاميرات ثابتة للمداخل والأسوار والممرات، وكاميرات متحركة للمساحات الواسعة، "
+                 "وأجهزة تسجيل بسعة تضمن بقاء التسجيلات عند الحاجة إليها — "
+                 "متصلة بغرفة العمليات المركزية لدينا حيث تُراقَب المواقع."),
+        "apps": [("Building entrances and lobbies", "مداخل المباني والاستقبال"),
+                 ("Perimeters and car parks", "الأسوار ومواقف السيارات"),
+                 ("Retail floors and stockrooms", "صالات البيع والمخازن"),
+                 ("Warehouses and industrial yards", "المستودعات والساحات الصناعية")],
+    },
+    {
+        "slug": "intrusion-fire",
+        "icon": "alarm",
+        "name": ("Intrusion &amp; Fire", "الإنذار والحريق"),
+        "tag": ("Alarm panels, detectors and sounders",
+                "لوحات إنذار وكواشف وصفّارات"),
+        "lead": ("Detection that raises the alarm the moment a door opens, a room is "
+                 "entered out of hours, or smoke is detected. Wireless throughout, so a "
+                 "working building can be protected without cutting channels into finished "
+                 "walls — and every alarm reports to the monitoring room, not just to a siren.",
+                 "أنظمة كشف تُطلق الإنذار فور فتح باب، أو دخول غرفة خارج أوقات العمل، "
+                 "أو رصد دخان. لاسلكية بالكامل، بحيث يمكن حماية مبنى قائم دون شقّ الجدران "
+                 "المشطّبة — وكل إنذار يُبلَّغ إلى غرفة المراقبة، لا إلى صفّارة فقط."),
+        "apps": [("Offices and clinics out of hours", "المكاتب والعيادات خارج الدوام"),
+                 ("Villas and residential compounds", "الفلل والمجمعات السكنية"),
+                 ("Stockrooms, safes and server rooms", "المخازن والخزائن وغرف الخوادم"),
+                 ("Unmanned sites and plant rooms", "المواقع غير المأهولة وغرف المعدات")],
+    },
+    {
+        "slug": "access-control",
+        "icon": "lock",
+        "name": ("Access Control", "التحكم بالدخول"),
+        "tag": ("Controllers, readers, turnstiles and attendance",
+                "لوحات تحكم وقارئات وبوابات وحضور"),
+        "lead": ("Control of who goes where, and a record of it afterwards. Card, fingerprint "
+                 "and face credentials on doors, lifts and turnstiles, with rules by person, "
+                 "door and time of day — and the same terminals doubling as the time and "
+                 "attendance system, so one installation answers both questions.",
+                 "تحكّم في مَن يدخل إلى أين، وسجلّ بذلك بعد وقوعه. بطاقات وبصمات وتعرّف على "
+                 "الوجه على الأبواب والمصاعد والبوابات، مع صلاحيات حسب الشخص والباب والوقت — "
+                 "وتعمل الأجهزة نفسها كنظام للحضور والانصراف، فيُجيب تركيب واحد عن السؤالين."),
+        "apps": [("Staff-only and restricted areas", "المناطق المحظورة وللموظفين فقط"),
+                 ("Reception and visitor management", "الاستقبال وإدارة الزوّار"),
+                 ("Labour accommodation and gates", "سكن العمال والبوابات"),
+                 ("Payroll-grade attendance records", "سجلات حضور معتمدة للرواتب")],
+    },
+    {
+        "slug": "radio-networking",
+        "icon": "headset",
+        "name": ("Radio &amp; Networking", "الاتصال والشبكات"),
+        "tag": ("Two-way radio, routers and PoE switching",
+                "أجهزة اتصال لاسلكي وراوترات ومبدّلات"),
+        "lead": ("What the other three categories run on. Two-way radio so guards and "
+                 "supervisors reach each other and the operations room without relying on "
+                 "personal phones, and the routers and PoE switching that carry cameras, "
+                 "controllers and alarms — including sites with no fixed line.",
+                 "البنية التي تعمل عليها الفئات الثلاث الأخرى. أجهزة اتصال لاسلكي تتيح "
+                 "للحرّاس والمشرفين التواصل فيما بينهم ومع غرفة العمليات دون الاعتماد على "
+                 "الهواتف الشخصية، والراوترات والمبدّلات التي تحمل الكاميرات ولوحات التحكم "
+                 "والإنذارات — بما في ذلك المواقع بلا خط ثابت."),
+        "apps": [("Guard and supervisor communications", "اتصالات الحرّاس والمشرفين"),
+                 ("Sites with no fixed line", "المواقع بلا خط ثابت"),
+                 ("Camera and controller backbones", "شبكات الكاميرات ولوحات التحكم"),
+                 ("Temporary and event networks", "شبكات المواقع المؤقتة والفعاليات")],
+    },
 ]
 
-VALUES = [
-    ("Trust", "الثقة"), ("Cooperation", "التعاون"), ("Quality", "الجودة"),
-    ("Innovation", "الإبتكار"), ("Focus", "التركيز"), ("Determination", "الإصرار"),
+CAT_BY_SLUG = {c["slug"]: c for c in CATEGORIES}
+
+# The eight technology partners from AZSCO's company profile. They are the
+# lines we supply, install and maintain; the catalogue entries above are
+# specified per site from these lines rather than sold as fixed SKUs.
+BRANDS = [
+    ("Ajax",      ("Wireless intrusion and fire detection", "كشف التسلل والحريق لاسلكياً"), ["intrusion-fire"]),
+    ("Hikvision", ("IP cameras, recorders and access control", "كاميرات شبكية وأجهزة تسجيل وتحكم بالدخول"), ["video-surveillance", "access-control"]),
+    ("Avigilon",  ("High-definition surveillance and video analytics", "مراقبة عالية الدقة وتحليلات فيديو"), ["video-surveillance"]),
+    ("Pelco",     ("Professional cameras and video management", "كاميرات احترافية وإدارة فيديو"), ["video-surveillance"]),
+    ("Rasilient", ("Purpose-built video recording and storage", "تسجيل وتخزين فيديو مخصّص"), ["video-surveillance"]),
+    ("Motorola",  ("Two-way radio and dispatch systems", "أجهزة اتصال لاسلكي وأنظمة إرسال"), ["radio-networking"]),
+    ("Inrico",    ("Network radio over LTE", "أجهزة اتصال عبر شبكات LTE"), ["radio-networking"]),
+    ("Teltonika", ("Industrial routers and network hardware", "راوترات صناعية وأجهزة شبكات"), ["radio-networking"]),
 ]
 
-NATIONALITIES = [
-    ("Kuwaiti", "كويتية"), ("Indian", "هندية"), ("Egyptian", "مصرية"),
-    ("Chadian", "تشادية"), ("Nigerian", "نيجيرية"), ("Nepalese", "نيبالية"),
-    ("Stateless individuals", "غير محددي الجنسية"),
+SECTORS = [
+    ("Government", "جهات حكومية"), ("Banking &amp; finance", "البنوك والمال"),
+    ("Hotels &amp; hospitality", "الفنادق والضيافة"), ("Retail &amp; malls", "التجزئة والمجمعات"),
+    ("Industrial &amp; logistics", "الصناعة واللوجستيات"), ("Healthcare", "الرعاية الصحية"),
+    ("Education", "التعليم"), ("Residential compounds", "المجمعات السكنية"),
+    ("Ports &amp; terminals", "الموانئ والمحطات"), ("Construction sites", "مواقع الإنشاءات"),
+    ("Offices &amp; towers", "المكاتب والأبراج"), ("Events &amp; venues", "الفعاليات والمواقع"),
 ]
 
-TRAINING = [
-    ("plus",         ("First Aid", "الإسعافات الأولية")),
-    ("flame",        ("Fire-Fighting", "مكافحة الحرائق")),
-    ("users",        ("Dealing with the Public", "التعامل مع الجمهور")),
-    ("shield-check", ("Dealing with Accidents", "التعامل مع الحوادث")),
-    ("shield",       ("Self-Defense", "الدفاع عن النفس")),
+
+# ---------------------------------------------------------------- products
+# Catalogue entries describe the class of equipment AZSCO specifies, supplies
+# and installs -- an outdoor 4K bullet camera, a four-door controller -- not a
+# fixed manufacturer part number. That is deliberate: the exact model is
+# chosen per site from the brand lines in BRANDS once the survey is done, and
+# a spec sheet nailed to one part number would go out of date the first time a
+# vendor revised its range. Figures below are the class's working envelope;
+# the quoted model's own datasheet governs on delivery.
+#
+# specs: (label, value) pairs, both bilingual. Values are wrapped in <span
+# dir="ltr"> by spec_value() where they are numeric, so "8 MP" and
+# "2.8-12 mm" read correctly inside Arabic.
+PRODUCTS = [
+    # ------------------------------------------------ video surveillance
+    {
+        "slug": "ip-bullet-camera-4k", "cat": "video-surveillance", "icon": "camera",
+        "featured": True,
+        "name": ("4K IP Bullet Camera", "كاميرا بوليت شبكية بدقة 4K"),
+        "kind": ("Outdoor fixed camera", "كاميرا خارجية ثابتة"),
+        "blurb": ("A long-range outdoor camera for entrances, perimeters and car parks, "
+                  "with a motorised lens that is set once at commissioning and infrared "
+                  "that keeps a usable picture after dark.",
+                  "كاميرا خارجية بعيدة المدى للمداخل والأسوار ومواقف السيارات، بعدسة "
+                  "مُحرّكة تُضبط مرة واحدة عند التشغيل، وأشعة تحت حمراء تحافظ على صورة "
+                  "واضحة بعد حلول الظلام."),
+        "highlights": [("Reads plates and faces at the gate, not just movement",
+                        "تُميّز اللوحات والوجوه عند البوابة، لا الحركة فقط"),
+                       ("Holds its picture in Kuwait summer heat and glare",
+                        "تحافظ على جودة الصورة في حرارة الكويت ووهجها"),
+                       ("One cable for power and video", "كابل واحد للطاقة والفيديو")],
+        "specs": [(("Resolution", "الدقة"), ("8 MP (3840 &times; 2160)", "8 ميجابكسل (3840 &times; 2160)")),
+                  (("Lens", "العدسة"), ("2.8&ndash;12 mm motorised varifocal", "2.8&ndash;12 ملم متغيّرة البعد")),
+                  (("Night vision", "الرؤية الليلية"), ("Infrared to 60 m", "أشعة تحت حمراء حتى 60 م")),
+                  (("Weather rating", "مقاومة الطقس"), ("IP67", "IP67")),
+                  (("Power", "التغذية"), ("PoE (802.3af) or 12 V DC", "PoE (802.3af) أو 12 فولت")),
+                  (("Analytics", "التحليلات"), ("Line crossing, intrusion, loitering", "تجاوز خط، تسلل، تسكّع")),
+                  (("Local storage", "تخزين محلي"), ("microSD to 256 GB", "بطاقة microSD حتى 256 جيجابايت"))],
+    },
+    {
+        "slug": "ip-dome-camera-4k", "cat": "video-surveillance", "icon": "camera",
+        "featured": False,
+        "name": ("4K Vandal-Resistant Dome Camera", "كاميرا قبّة مضادة للتخريب بدقة 4K"),
+        "kind": ("Indoor / outdoor dome", "كاميرا قبّة داخلية / خارجية"),
+        "blurb": ("A low-profile dome for lobbies, corridors and retail floors, in a "
+                  "housing rated to survive a deliberate kick — the usual choice where a "
+                  "camera is within reach of the public.",
+                  "كاميرا قبّة منخفضة الارتفاع للاستقبال والممرات وصالات البيع، ضمن هيكل "
+                  "مصمّم لتحمّل الضرب المتعمّد — الخيار المعتاد حيث تكون الكاميرا في "
+                  "متناول الجمهور."),
+        "highlights": [("Survives tampering where cameras are reachable",
+                        "تقاوم العبث حيث تكون الكاميرات في المتناول"),
+                       ("Wide view covers a room from one position",
+                        "زاوية واسعة تغطي الغرفة من موضع واحد"),
+                       ("Handles backlit doorways without silhouettes",
+                        "تتعامل مع المداخل ذات الإضاءة الخلفية دون ظلال")],
+        "specs": [(("Resolution", "الدقة"), ("8 MP (3840 &times; 2160)", "8 ميجابكسل (3840 &times; 2160)")),
+                  (("Lens", "العدسة"), ("2.8 mm fixed, 110&deg; view", "2.8 ملم ثابتة، زاوية 110&deg;")),
+                  (("Night vision", "الرؤية الليلية"), ("Infrared to 30 m", "أشعة تحت حمراء حتى 30 م")),
+                  (("Impact rating", "مقاومة الصدمات"), ("IK10 vandal-resistant", "IK10 مضادة للتخريب")),
+                  (("Weather rating", "مقاومة الطقس"), ("IP67", "IP67")),
+                  (("Dynamic range", "المدى الديناميكي"), ("120 dB WDR", "120 ديسيبل WDR")),
+                  (("Power", "التغذية"), ("PoE (802.3af)", "PoE (802.3af)"))],
+    },
+    {
+        "slug": "ptz-camera-25x", "cat": "video-surveillance", "icon": "eye",
+        "featured": True,
+        "name": ("PTZ Camera, 25&times; Optical Zoom", "كاميرا متحركة بتقريب بصري 25&times;"),
+        "kind": ("Pan / tilt / zoom camera", "كاميرا دوّارة بتقريب"),
+        "blurb": ("One camera covering ground that would otherwise need several — yards, "
+                  "compounds and long perimeters — and zooming in far enough to identify "
+                  "rather than merely detect. Follows a moving subject on its own.",
+                  "كاميرا واحدة تغطي مساحة كانت ستحتاج إلى عدة كاميرات — الساحات "
+                  "والمجمعات والأسوار الطويلة — وتقرّب بما يكفي للتعرّف لا للكشف فقط. "
+                  "وتتتبّع الهدف المتحرك تلقائياً."),
+        "highlights": [("Covers a whole yard from a single mast",
+                        "تغطي ساحة كاملة من عمود واحد"),
+                       ("Auto-tracks a subject once it starts moving",
+                        "تتتبّع الهدف تلقائياً بمجرد تحرّكه"),
+                       ("Presets return it to key points on alarm",
+                        "مواضع مبرمجة تعيدها إلى النقاط المهمة عند الإنذار")],
+        "specs": [(("Resolution", "الدقة"), ("4 MP", "4 ميجابكسل")),
+                  (("Optical zoom", "التقريب البصري"), ("25&times;", "25&times;")),
+                  (("Pan / tilt", "الدوران / الميل"), ("360&deg; endless pan, 90&deg; tilt", "دوران 360&deg; مستمر، ميل 90&deg;")),
+                  (("Night vision", "الرؤية الليلية"), ("Infrared to 150 m", "أشعة تحت حمراء حتى 150 م")),
+                  (("Tracking", "التتبّع"), ("Automatic subject tracking", "تتبّع تلقائي للهدف")),
+                  (("Weather rating", "مقاومة الطقس"), ("IP66", "IP66")),
+                  (("Power", "التغذية"), ("Hi-PoE (802.3bt) or 24 V AC", "Hi-PoE (802.3bt) أو 24 فولت"))],
+    },
+    {
+        "slug": "nvr-16-channel", "cat": "video-surveillance", "icon": "grid",
+        "featured": False,
+        "name": ("16-Channel Network Video Recorder", "مسجّل فيديو شبكي بـ 16 قناة"),
+        "kind": ("Recording and storage", "تسجيل وتخزين"),
+        "blurb": ("Where the footage actually lives. Sized at survey so the retention the "
+                  "site needs — thirty days, ninety, whatever the policy says — is still "
+                  "on the disk when someone comes asking for it.",
+                  "المكان الذي تُحفظ فيه التسجيلات فعلياً. تُحدَّد سعته عند المعاينة بحيث "
+                  "تبقى مدة الاحتفاظ المطلوبة — ثلاثون يوماً أو تسعون أو ما تقتضيه السياسة "
+                  "— متاحة عند طلبها."),
+        "highlights": [("Powers the cameras as well as recording them",
+                        "تغذّي الكاميرات بالطاقة إضافة إلى تسجيلها"),
+                       ("Keeps recording through a single disk failure",
+                        "يواصل التسجيل رغم تعطّل قرص واحد"),
+                       ("Exports a clip with its own integrity stamp",
+                        "يصدّر المقاطع مع ختم تحقّق من سلامتها")],
+        "specs": [(("Channels", "القنوات"), ("16 IP cameras", "16 كاميرا شبكية")),
+                  (("Built-in PoE", "منافذ PoE"), ("16 ports", "16 منفذاً")),
+                  (("Drive bays", "أقراص التخزين"), ("4 bays, to 10 TB each", "4 فتحات، حتى 10 تيرابايت لكل منها")),
+                  (("Redundancy", "الحماية من الأعطال"), ("RAID 0 / 1 / 5 / 10", "RAID 0 / 1 / 5 / 10")),
+                  (("Compression", "الضغط"), ("H.265+ / H.264+", "H.265+ / H.264+")),
+                  (("Output", "المخرجات"), ("Dual HDMI, 4K", "منفذا HDMI بدقة 4K")),
+                  (("Remote access", "الوصول عن بُعد"), ("Mobile app and web client", "تطبيق للجوال وواجهة ويب"))],
+    },
+    # ------------------------------------------------ intrusion and fire
+    {
+        "slug": "wireless-alarm-hub", "cat": "intrusion-fire", "icon": "shield",
+        "featured": True,
+        "name": ("Wireless Alarm Control Hub", "لوحة تحكم إنذار لاسلكية"),
+        "kind": ("Alarm panel", "لوحة إنذار"),
+        "blurb": ("The panel every detector reports to, and the point that reaches our "
+                  "operations room. Two independent paths out — fixed line and cellular — "
+                  "so cutting one does not silence the building.",
+                  "اللوحة التي تُبلّغ إليها جميع الكواشف، ونقطة الاتصال بغرفة العمليات "
+                  "لدينا. لها مساران مستقلان للخروج — خط ثابت وشبكة خلوية — بحيث لا يؤدي "
+                  "قطع أحدهما إلى إسكات المبنى."),
+        "highlights": [("Reports to the operations room, not just a siren",
+                        "يُبلّغ غرفة العمليات، لا صفّارة فقط"),
+                       ("Stays online on cellular if the line is cut",
+                        "يبقى متصلاً عبر الشبكة الخلوية إذا قُطع الخط"),
+                       ("Runs through a power cut on its own battery",
+                        "يعمل أثناء انقطاع الكهرباء ببطاريته")],
+        "specs": [(("Devices supported", "عدد الأجهزة"), ("Up to 100", "حتى 100 جهاز")),
+                  (("Radio range", "مدى الإرسال"), ("To 2,000 m open ground", "حتى 2000 م في الأماكن المفتوحة")),
+                  (("Connectivity", "الاتصال"), ("Ethernet plus dual SIM LTE", "إيثرنت مع شريحتي LTE")),
+                  (("Battery backup", "البطارية الاحتياطية"), ("Up to 16 hours", "حتى 16 ساعة")),
+                  (("Partitions", "الأقسام"), ("Up to 9 independent groups", "حتى 9 مجموعات مستقلة")),
+                  (("Reporting", "الإبلاغ"), ("Monitoring centre and mobile app", "مركز المراقبة وتطبيق الجوال"))],
+    },
+    {
+        "slug": "wireless-motion-detector", "cat": "intrusion-fire", "icon": "target",
+        "featured": False,
+        "name": ("Wireless Motion Detector", "كاشف حركة لاسلكي"),
+        "kind": ("Intrusion detector", "كاشف تسلل"),
+        "blurb": ("Covers a room and calls the hub the moment someone is in it out of "
+                  "hours. Tuned to ignore a cat or a small dog, so a site with animals is "
+                  "not woken by its own alarm every night.",
+                  "يغطي الغرفة ويُبلّغ اللوحة فور دخول أحد إليها خارج أوقات العمل. مضبوط "
+                  "لتجاهل القطط والكلاب الصغيرة، فلا يوقَظ الموقع الذي فيه حيوانات بإنذاره "
+                  "كل ليلة."),
+        "highlights": [("No cabling through finished walls",
+                        "بلا تمديدات في الجدران المشطّبة"),
+                       ("Ignores pets under 20 kg", "يتجاهل الحيوانات دون 20 كجم"),
+                       ("Reports its own battery before it dies",
+                        "يُبلّغ عن بطاريته قبل نفادها")],
+        "specs": [(("Detection range", "مدى الكشف"), ("12 m, 88&deg; field", "12 م، مجال 88&deg;")),
+                  (("Pet immunity", "مناعة الحيوانات"), ("Animals to 20 kg", "حيوانات حتى 20 كجم")),
+                  (("Battery life", "عمر البطارية"), ("Up to 5 years", "حتى 5 سنوات")),
+                  (("Tamper", "الحماية من العبث"), ("Case and wall tamper", "حماية الغطاء والتثبيت")),
+                  (("Mounting", "التركيب"), ("Wall or corner bracket", "حامل جداري أو ركني"))],
+    },
+    {
+        "slug": "door-window-contact", "cat": "intrusion-fire", "icon": "lock",
+        "featured": False,
+        "name": ("Wireless Door &amp; Window Contact", "كاشف فتح للأبواب والنوافذ لاسلكي"),
+        "kind": ("Opening detector", "كاشف فتح"),
+        "blurb": ("The cheapest useful thing on a perimeter: it reports the door opening "
+                  "at all, which is usually the first fact anyone wants. Small enough to "
+                  "sit on a frame without being noticed.",
+                  "أبسط عنصر مفيد على المحيط: يُبلّغ عن فتح الباب أصلاً، وهي عادة أول "
+                  "معلومة يحتاجها أي شخص. صغير بما يكفي ليُركّب على الإطار دون أن يُلاحَظ."),
+        "highlights": [("Fits a frame without drilling the door",
+                        "يُركّب على الإطار دون ثقب الباب"),
+                       ("Takes a wired sensor on its spare input",
+                        "يقبل كاشفاً سلكياً على مدخله الإضافي"),
+                       ("Five-year battery", "بطارية تدوم خمس سنوات")],
+        "specs": [(("Gap detection", "مسافة الكشف"), ("To 20 mm", "حتى 20 ملم")),
+                  (("Battery life", "عمر البطارية"), ("Up to 5 years", "حتى 5 سنوات")),
+                  (("Auxiliary input", "مدخل إضافي"), ("One wired zone", "منطقة سلكية واحدة")),
+                  (("Tamper", "الحماية من العبث"), ("Case and wall tamper", "حماية الغطاء والتثبيت")),
+                  (("Finish", "اللون"), ("White or brown", "أبيض أو بني"))],
+    },
+    {
+        "slug": "smoke-heat-detector", "cat": "intrusion-fire", "icon": "flame",
+        "featured": True,
+        "name": ("Wireless Smoke &amp; Heat Detector", "كاشف دخان وحرارة لاسلكي"),
+        "kind": ("Fire detector", "كاشف حريق"),
+        "blurb": ("Two ways of noticing a fire in one device — smoke, and a rise in "
+                  "temperature — because each misses fires the other catches. Sounds the "
+                  "whole set at once, not just the one that tripped.",
+                  "طريقتان لاكتشاف الحريق في جهاز واحد — الدخان وارتفاع الحرارة — لأن كلاً "
+                  "منهما يفوته ما يكتشفه الآخر. ويُطلق الإنذار في جميع الكواشف معاً، لا في "
+                  "الذي رصد الحريق فقط."),
+        "highlights": [("Smoke and heat sensing in one unit",
+                        "استشعار الدخان والحرارة في وحدة واحدة"),
+                       ("All detectors sound together", "تُطلق جميع الكواشف الإنذار معاً"),
+                       ("Alerts the phone as well as the room",
+                        "ينبّه الهاتف كما ينبّه الغرفة")],
+        "specs": [(("Sensors", "المستشعرات"), ("Optical smoke plus 60 &deg;C heat", "دخان بصري مع حرارة 60 &deg;م")),
+                  (("Sounder", "الصفّارة"), ("85 dB at 3 m", "85 ديسيبل على بُعد 3 م")),
+                  (("Interlink", "الترابط"), ("All detectors sound together", "إطلاق متزامن لجميع الكواشف")),
+                  (("Battery life", "عمر البطارية"), ("Up to 4 years", "حتى 4 سنوات")),
+                  (("Self-test", "الفحص الذاتي"), ("Automatic, reports faults", "تلقائي، ويُبلّغ عن الأعطال"))],
+    },
+    # ------------------------------------------------ access control
+    {
+        "slug": "four-door-controller", "cat": "access-control", "icon": "cog",
+        "featured": True,
+        "name": ("Four-Door Access Controller", "لوحة تحكم بالدخول لأربعة أبواب"),
+        "kind": ("Door controller", "لوحة تحكم بالأبواب"),
+        "blurb": ("The panel that decides whether a door opens. Keeps its rules and its "
+                  "event log locally, so the doors carry on working correctly when the "
+                  "network or the server is down.",
+                  "اللوحة التي تقرّر ما إذا كان الباب سيُفتح. تحتفظ بالصلاحيات وسجلّ "
+                  "الأحداث محلياً، فتستمر الأبواب في العمل بشكل صحيح عند تعطّل الشبكة أو "
+                  "الخادم."),
+        "highlights": [("Doors keep working if the network drops",
+                        "تستمر الأبواب في العمل عند انقطاع الشبكة"),
+                       ("Releases every door on a fire alarm",
+                        "يفتح جميع الأبواب عند إنذار الحريق"),
+                       ("Encrypted reader wiring (OSDP)",
+                        "توصيل مشفّر للقارئات (OSDP)")],
+        "specs": [(("Doors", "الأبواب"), ("4 doors, 8 readers", "4 أبواب، 8 قارئات")),
+                  (("Cardholders", "حاملو البطاقات"), ("Up to 100,000", "حتى 100,000")),
+                  (("Event buffer", "سجلّ الأحداث"), ("300,000 events offline", "300,000 حدث دون اتصال")),
+                  (("Reader protocol", "بروتوكول القارئ"), ("OSDP and Wiegand", "OSDP و Wiegand")),
+                  (("Network", "الشبكة"), ("TCP/IP", "TCP/IP")),
+                  (("Fire interface", "واجهة الحريق"), ("Fail-safe release input", "مدخل فتح عند الإنذار")),
+                  (("Power", "التغذية"), ("12 V DC with battery backup", "12 فولت مع بطارية احتياطية"))],
+    },
+    {
+        "slug": "fingerprint-card-reader", "cat": "access-control", "icon": "check",
+        "featured": False,
+        "name": ("Fingerprint &amp; Card Reader", "قارئ بصمة وبطاقة"),
+        "kind": ("Door reader", "قارئ أبواب"),
+        "blurb": ("A reader for doors where a borrowed card is a real risk. Takes a "
+                  "fingerprint, a card, or both together where the area warrants it, and "
+                  "is rated for an outdoor doorway.",
+                  "قارئ للأبواب التي تشكّل فيها البطاقة المُعارة خطراً فعلياً. يقبل البصمة "
+                  "أو البطاقة أو كليهما معاً حيث تستدعي المنطقة ذلك، وهو مصنّف للاستخدام "
+                  "في المداخل الخارجية."),
+        "highlights": [("A fingerprint cannot be lent to a colleague",
+                        "لا يمكن إعارة البصمة لزميل"),
+                       ("Card and fingerprint together for sensitive doors",
+                        "بطاقة وبصمة معاً للأبواب الحسّاسة"),
+                       ("Rated for an outdoor doorway", "مصنّف للمداخل الخارجية")],
+        "specs": [(("Fingerprint capacity", "سعة البصمات"), ("3,000 templates", "3000 بصمة")),
+                  (("Card types", "أنواع البطاقات"), ("MIFARE and DESFire", "MIFARE و DESFire")),
+                  (("Verification", "التحقق"), ("Under 1 second", "أقل من ثانية")),
+                  (("Protocol", "البروتوكول"), ("OSDP or Wiegand", "OSDP أو Wiegand")),
+                  (("Weather rating", "مقاومة الطقس"), ("IP65", "IP65"))],
+    },
+    {
+        "slug": "time-attendance-terminal", "cat": "access-control", "icon": "clock",
+        "featured": False,
+        "name": ("Time &amp; Attendance Terminal", "جهاز حضور وانصراف"),
+        "kind": ("Attendance terminal", "جهاز حضور"),
+        "blurb": ("Turns the same door hardware into the attendance record payroll needs. "
+                  "Face recognition means staff clock in without touching anything and "
+                  "without handing a card to a friend at the gate.",
+                  "يحوّل أجهزة الأبواب نفسها إلى سجلّ حضور يخدم الرواتب. التعرّف على الوجه "
+                  "يعني تسجيل الحضور دون لمس أي شيء ودون تمرير بطاقة إلى زميل عند البوابة."),
+        "highlights": [("Face recognition — nothing to touch or lend",
+                        "تعرّف على الوجه — بلا لمس أو إعارة"),
+                       ("Exports straight into payroll", "تصدير مباشر إلى نظام الرواتب"),
+                       ("Works as a door reader as well",
+                        "يعمل كقارئ أبواب أيضاً")],
+        "specs": [(("Credentials", "وسائل التعريف"), ("Face, fingerprint and card", "الوجه والبصمة والبطاقة")),
+                  (("Face capacity", "سعة الوجوه"), ("1,500 faces", "1500 وجه")),
+                  (("Display", "الشاشة"), ("4.3-inch touchscreen", "شاشة لمس 4.3 بوصة")),
+                  (("Network", "الشبكة"), ("TCP/IP and Wi-Fi", "TCP/IP وواي فاي")),
+                  (("Export", "التصدير"), ("Payroll-ready reports", "تقارير جاهزة للرواتب"))],
+    },
+    {
+        "slug": "tripod-turnstile", "cat": "access-control", "icon": "users",
+        "featured": False,
+        "name": ("Tripod Turnstile", "بوابة دوّارة ثلاثية"),
+        "kind": ("Pedestrian barrier", "حاجز للمشاة"),
+        "blurb": ("Makes one person per credential physically true at a busy entrance, "
+                  "which a door alone never does. Arms drop clear on power loss so the "
+                  "lane becomes an exit route.",
+                  "يجعل قاعدة «شخص واحد لكل تصريح» أمراً ملموساً عند المداخل المزدحمة، "
+                  "وهو ما لا يحقّقه الباب وحده. وتنخفض الأذرع عند انقطاع الكهرباء ليصبح "
+                  "الممر مخرجاً للطوارئ."),
+        "highlights": [("One credential, one person through",
+                        "تصريح واحد، شخص واحد يعبر"),
+                       ("Arms drop clear on power loss", "تنخفض الأذرع عند انقطاع الكهرباء"),
+                       ("Stainless body for lobbies and gatehouses",
+                        "هيكل ستانلس للاستقبال وغرف البوابات")],
+        "specs": [(("Body", "الهيكل"), ("304 stainless steel", "ستانلس ستيل 304")),
+                  (("Throughput", "معدل العبور"), ("Up to 30 people per minute", "حتى 30 شخصاً في الدقيقة")),
+                  (("Direction", "الاتجاه"), ("Bi-directional, configurable", "اتجاهان، قابل للضبط")),
+                  (("On power loss", "عند انقطاع الكهرباء"), ("Arms drop to free passage", "تنخفض الأذرع لفتح الممر")),
+                  (("Integration", "التكامل"), ("Accepts any standard reader", "يقبل أي قارئ قياسي"))],
+    },
+    # ------------------------------------------------ radio and networking
+    {
+        "slug": "digital-two-way-radio", "cat": "radio-networking", "icon": "headset",
+        "featured": True,
+        "name": ("Digital Two-Way Radio", "جهاز اتصال لاسلكي رقمي"),
+        "kind": ("Handheld radio", "جهاز محمول"),
+        "blurb": ("What a guard actually carries. Pressing one button reaches the whole "
+                  "shift at once, which a phone call cannot do, and it keeps working when "
+                  "the mobile network is congested or down.",
+                  "الجهاز الذي يحمله الحارس فعلياً. ضغطة زر واحدة تصل إلى الوردية بأكملها، "
+                  "وهو ما لا تحقّقه المكالمة الهاتفية، ويستمر في العمل عند ازدحام شبكة "
+                  "الجوال أو تعطّلها."),
+        "highlights": [("One press reaches the whole shift",
+                        "ضغطة واحدة تصل إلى الوردية كاملة"),
+                       ("Man-down and lone-worker alerts",
+                        "تنبيهات السقوط والعامل المنفرد"),
+                       ("A full shift on one battery", "وردية كاملة ببطارية واحدة")],
+        "specs": [(("Mode", "النمط"), ("DMR Tier II and analogue", "DMR Tier II وتناظري")),
+                  (("Band", "النطاق"), ("UHF 400&ndash;470 MHz", "UHF 400&ndash;470 ميجاهرتز")),
+                  (("Power", "القدرة"), ("4 W", "4 واط")),
+                  (("Channels", "القنوات"), ("1,000", "1000")),
+                  (("Battery life", "عمر البطارية"), ("Up to 24 hours", "حتى 24 ساعة")),
+                  (("Rating", "التصنيف"), ("IP67, dust and water", "IP67، غبار وماء")),
+                  (("Safety", "السلامة"), ("Man-down and lone-worker", "السقوط والعامل المنفرد"))],
+    },
+    {
+        "slug": "lte-network-radio", "cat": "radio-networking", "icon": "route",
+        "featured": False,
+        "name": ("LTE Network Radio", "جهاز اتصال عبر شبكة LTE"),
+        "kind": ("Wide-area radio", "جهاز واسع النطاق"),
+        "blurb": ("A radio that talks over the mobile network instead of its own "
+                  "repeaters, so patrols spread across Kuwait stay on one talk group "
+                  "without a licence or a mast.",
+                  "جهاز اتصال يعمل عبر شبكة الجوال بدلاً من أجهزة إعادة الإرسال الخاصة، "
+                  "فتبقى الدوريات المنتشرة في أنحاء الكويت على مجموعة تحدّث واحدة دون "
+                  "ترخيص أو برج."),
+        "highlights": [("Nationwide range with no repeaters to build",
+                        "تغطية على مستوى البلاد دون بناء أبراج"),
+                       ("GPS puts every patrol on the map",
+                        "نظام تحديد المواقع يُظهر كل دورية على الخريطة"),
+                       ("Talk groups changed from the office",
+                        "تُعدَّل مجموعات التحدّث من المكتب")],
+        "specs": [(("Network", "الشبكة"), ("4G LTE and Wi-Fi", "4G LTE وواي فاي")),
+                  (("Coverage", "التغطية"), ("Anywhere with carrier signal", "أينما توفّرت تغطية المشغّل")),
+                  (("Talk groups", "مجموعات التحدّث"), ("Unlimited, managed centrally", "غير محدودة، تُدار مركزياً")),
+                  (("Location", "الموقع"), ("GPS tracking", "تتبّع عبر GPS")),
+                  (("Licence", "الترخيص"), ("No radio licence required", "لا يتطلب ترخيص تردد")),
+                  (("Rating", "التصنيف"), ("IP65", "IP65"))],
+    },
+    {
+        "slug": "industrial-lte-router", "cat": "radio-networking", "icon": "link",
+        "featured": False,
+        "name": ("Industrial LTE Router", "راوتر صناعي بشبكة LTE"),
+        "kind": ("Cellular router", "راوتر خلوي"),
+        "blurb": ("Puts a site online where there is no fixed line — a gatehouse, a yard, "
+                  "a tower under construction — and fails over to a second SIM rather than "
+                  "taking the cameras offline with it.",
+                  "يوصل الموقع بالإنترنت حيث لا يوجد خط ثابت — غرفة بوابة أو ساحة أو برج "
+                  "قيد الإنشاء — وينتقل تلقائياً إلى شريحة ثانية بدلاً من أن يقطع الاتصال "
+                  "عن الكاميرات."),
+        "highlights": [("Connects a site with no fixed line",
+                        "يوصل موقعاً بلا خط ثابت"),
+                       ("Second SIM takes over automatically",
+                        "شريحة ثانية تتولّى الاتصال تلقائياً"),
+                       ("Rated for a hot plant room", "مصنّف لغرف المعدات الحارة")],
+        "specs": [(("Cellular", "الشبكة الخلوية"), ("4G LTE Cat 6", "4G LTE الفئة 6")),
+                  (("SIM slots", "فتحات الشرائح"), ("Dual SIM with auto failover", "شريحتان مع تبديل تلقائي")),
+                  (("Ethernet", "الإيثرنت"), ("4 &times; Gigabit", "4 &times; جيجابت")),
+                  (("Wi-Fi", "الواي فاي"), ("Dual-band Wi-Fi 5", "واي فاي 5 ثنائي النطاق")),
+                  (("Operating range", "نطاق التشغيل"), ("&minus;40 to +75 &deg;C", "&minus;40 إلى +75 &deg;م")),
+                  (("Security", "الأمان"), ("IPsec and OpenVPN", "IPsec و OpenVPN")),
+                  (("Mounting", "التركيب"), ("DIN rail", "قضيب DIN"))],
+    },
+    {
+        "slug": "managed-poe-switch-16", "cat": "radio-networking", "icon": "grid",
+        "featured": False,
+        "name": ("16-Port Managed PoE Switch", "مبدّل شبكة مُدار بـ 16 منفذ PoE"),
+        "kind": ("Network switch", "مبدّل شبكة"),
+        "blurb": ("Carries power and data to cameras, readers and access panels on one "
+                  "cable each, and can be told to power-cycle a frozen camera remotely "
+                  "instead of sending someone up a ladder.",
+                  "ينقل الطاقة والبيانات إلى الكاميرات والقارئات ولوحات التحكم بكابل واحد "
+                  "لكل جهاز، ويمكن إصدار أمر له بإعادة تشغيل كاميرا متوقفة عن بُعد بدلاً من "
+                  "إرسال فنّي بسلّم."),
+        "highlights": [("One cable carries power and data",
+                        "كابل واحد ينقل الطاقة والبيانات"),
+                       ("Restart a frozen camera from the office",
+                        "إعادة تشغيل كاميرا متوقفة من المكتب"),
+                       ("Keeps cameras on their own VLAN",
+                        "يعزل الكاميرات على شبكة افتراضية خاصة")],
+        "specs": [(("PoE ports", "منافذ PoE"), ("16 &times; PoE+ (802.3at)", "16 &times; PoE+ (802.3at)")),
+                  (("Uplinks", "منافذ الربط"), ("2 &times; SFP gigabit", "2 &times; SFP جيجابت")),
+                  (("Power budget", "ميزانية الطاقة"), ("250 W total", "250 واط إجمالاً")),
+                  (("Management", "الإدارة"), ("VLAN, QoS, IGMP snooping", "VLAN و QoS و IGMP")),
+                  (("Remote reset", "إعادة التشغيل عن بُعد"), ("Per-port power cycling", "لكل منفذ على حدة")),
+                  (("Mounting", "التركيب"), ("1U rack mount", "رف بارتفاع 1U"))],
+    },
 ]
 
-EQUIPMENT = [
-    ("Walkie Talkie", "جهاز اتصال لاسلكي"),
-    ("Flashlight", "كشاف يدوي"),
-    ("Baton", "العصا"),
-    ("Fire Extinguisher", "طفاية حريق"),
-    ("First Aid Kit", "حقيبة إسعافات أولية"),
-    ("Metal Detectors", "الكاشفات المعدنية"),
-]
+PROD_BY_SLUG = {p["slug"]: p for p in PRODUCTS}
 
-CERTIFICATIONS = [
-    ("ISO 9001:2015 certified quality management system.",
-     "حاصلة على شهادة 9001:2015 ISO لنظام إدارة الجودة."),
-    ("Certified compliant with Anti-Money Laundering standards.",
-     "حاصلة على شهادة الالتزام بمعايير مكافحة غسل الأموال."),
-]
+def products_in(cat_slug):
+    return [p for p in PRODUCTS if p["cat"] == cat_slug]
 
-UNIFORMS = [
-    ("formal", ("Formal Uniform", "الزي الرسمي")),
-    ("winter", ("Winter Uniform", "الزي الشتوي")),
-    ("patrol", ("Patrol Uniform", "زي الدوريات")),
-    ("security", ("Duty Uniform", "زي المناوبة")),
-]
+def brands_for(cat_slug):
+    return [b for b in BRANDS if cat_slug in b[2]]
 
-# 8 official technology partners; rendered as a single logo panel image
-# (assets/img/photos/partners-logos.png), this list backs the count shown in
-# the statistics row and the image's alt text.
-PARTNERS = ["Ajax", "Rasilient", "Avigilon", "Teltonika", "Inrico", "Hikvision", "Pelco", "Motorola"]
 
-CLIENTS_ALT = ("Logos of AZSCO clients including Radisson Blu Hotel Kuwait, Alnasser, Millennium Hotels and Resorts, Kuwait Ports Authority and others",
-               "شعارات عملاء أزسكو، ومنهم فندق راديسون بلو الكويت، والنصر، وميلينيوم للفنادق والمنتجعات، والهيئة العامة لموانئ الكويت وغيرهم")
-PARTNERS_ALT = ("Logos of AZSCO technology partners: Ajax, Rasilient, Avigilon, Teltonika, Inrico, Hikvision, Pelco and Motorola",
-                "شعارات شركاء أزسكو التقنيين: Ajax وRasilient وAvigilon وTeltonika وInrico وHikvision وPelco وMotorola")
-CERT_ALT = ("AZSCO certification badges: SCK, IAS accredited and ISO 9001",
-            "شهادات أزسكو: SCK، معتمدة من IAS، وISO 9001")
-SECTORS_ALT = ("Icons for the 15 sectors AZSCO protects: government, commercial, financial, "
-               "industrial, public facilities, events, tourist sites, residential complexes, "
-               "ports and airports, critical infrastructure, warehousing, transport and "
-               "logistics, protected areas, sports and recreation, and vital infrastructure",
-               "أيقونات للقطاعات الـ15 التي تحميها أزسكو: الحكومية والتجارية والمالية والصناعية "
-               "والمرافق العامة والفعاليات والمواقع السياحية والمجمعات السكنية والموانئ "
-               "والمطارات والبنية التحتية الحيوية والمخازن والنقل واللوجستيات والمناطق "
-               "المحمية والمرافق الرياضية والترفيهية والمنشآت الحيوية")
-HERO_SVG = '''<svg viewBox="0 0 320 300" role="img" aria-label="Illustration of a monitored, protected building">
-<defs><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1">
-<stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#9a9a9a"/></linearGradient></defs>
-<rect x="70" y="70" width="180" height="180" rx="10" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="2"/>
-<rect x="100" y="100" width="120" height="120" rx="8" fill="rgba(255,255,255,.10)" stroke="url(#hg)" stroke-width="2"/>
-<path d="M160 118l38 14v26c0 24-16 42-38 50-22-8-38-26-38-50v-26z" fill="none" stroke="url(#hg)" stroke-width="3"/>
-<path d="m148 168 9 9 20-20" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="70" cy="70" r="7" fill="#ffffff"/><circle cx="250" cy="70" r="7" fill="#ffffff"/>
-<circle cx="70" cy="250" r="7" fill="#ffffff"/><circle cx="250" cy="250" r="7" fill="#ffffff"/>
-<path d="M40 160h30M250 160h30M160 40v30M160 250v30" stroke="rgba(255,255,255,.28)" stroke-width="2" stroke-linecap="round"/>
-</svg>'''
-
-ABOUT_SVG = '''<svg viewBox="0 0 320 300" role="img" aria-label="Illustration of AZSCO security operations">
-<defs><linearGradient id="ag" x1="0" y1="0" x2="1" y2="1">
-<stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#9a9a9a"/></linearGradient></defs>
-<rect x="46" y="96" width="70" height="130" rx="6" fill="rgba(255,255,255,.16)" stroke="url(#ag)" stroke-width="2"/>
-<rect x="126" y="56" width="70" height="170" rx="6" fill="rgba(255,255,255,.24)" stroke="url(#ag)" stroke-width="2"/>
-<rect x="206" y="120" width="70" height="106" rx="6" fill="rgba(255,255,255,.09)" stroke="url(#ag)" stroke-width="2"/>
-<g fill="rgba(255,255,255,.35)">
-<rect x="58" y="112" width="16" height="14" rx="2"/><rect x="86" y="112" width="16" height="14" rx="2"/>
-<rect x="58" y="140" width="16" height="14" rx="2"/><rect x="86" y="140" width="16" height="14" rx="2"/>
-<rect x="138" y="76" width="16" height="14" rx="2"/><rect x="166" y="76" width="16" height="14" rx="2"/>
-<rect x="138" y="104" width="16" height="14" rx="2"/><rect x="166" y="104" width="16" height="14" rx="2"/>
-<rect x="218" y="140" width="16" height="14" rx="2"/><rect x="246" y="140" width="16" height="14" rx="2"/>
-</g>
-<path d="M161 150l30 11v21c0 19-13 33-30 40-17-7-30-21-30-40v-21z" fill="#0d0d0d" stroke="url(#ag)" stroke-width="3"/>
-<path d="m150 182 8 8 17-17" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M30 236h260" stroke="rgba(255,255,255,.25)" stroke-width="3" stroke-linecap="round"/>
-</svg>'''
-
-# ============================================================ home
+# ============================================================ page copy
 HOME = {
-  "title": ("AZSCO Security | Professional Security Services for Kuwait",
-            "أزسكو للأمن | خدمات أمنية احترافية في الكويت"),
-  "desc": ("AZSCO Security Services Company provides professional security services in Kuwait since 2014 — facility guarding, VIP protection and rapid intervention, a 24/7 central operations room, security patrols, and security systems.",
-           "تقدّم شركة أزسكو لخدمات حراسة المنشآت خدمات أمنية احترافية في الكويت منذ عام 2014 — حراسة المنشآت، وحماية الشخصيات والتدخّل السريع، وغرفة عمليات مركزية على مدار الساعة، ودوريات أمنية، وأنظمة أمنية."),
-  "badge": ("Licensed Security Provider &mdash; Kuwait", "مزوّد خدمات أمنية مرخّص &mdash; الكويت"),
-  "h1a": ("Professional Security", "خدمات أمنية"),
-  "h1b": ("Services for Kuwait", "احترافية في الكويت"),
-  "lead": ("AZSCO is committed to providing unparalleled security services that ensure the safety and peace of mind of our clients &mdash; delivered by highly trained, licensed and closely supervised security personnel.",
-           "تلتزم أزسكو بتقديم خدمات أمنية لا تُضاهى تضمن سلامة عملائنا وراحة بالهم &mdash; عبر كوادر أمنية مدرّبة تدريباً عالياً ومرخّصة وتخضع لإشراف دقيق."),
-  "points": [("Guarding Kuwait since 2014", "نحرس الكويت منذ عام 2014"),
-             ("Licensed &amp; vetted personnel", "كوادر مرخّصة ومدقّقة أمنياً"),
-             ("24/7 supervision &amp; response", "إشراف واستجابة على مدار الساعة")],
-  "card_h": ("What We Guard", "ما الذي نحرسه"),
-  "card_p": ("Security officers for every kind of premises across Kuwait.",
-             "أفراد أمن لجميع أنواع المنشآت في جميع أنحاء الكويت."),
-  "card_items": [
-    ("shield", ("Facility Guarding", "حراسة المنشآت"),
-     ("Static officers for facilities of every kind.", "أفراد أمن ثابتون لمختلف أنواع المنشآت.")),
-    ("target", ("VIP Protection &amp; Rapid Intervention", "حماية الشخصيات والتدخل السريع"),
-     ("Qualified personal guards and rapid intervention.", "حراس شخصيون مؤهلون وتدخّل سريع.")),
-    ("eye", ("Central Operations Room", "غرفة عمليات مركزية"),
-     ("24/7 monitoring and immediate communication.", "مراقبة وتواصل فوري على مدار الساعة.")),
-  ],
-  "svc_eyebrow": ("Our Services", "خدماتنا"),
-  "svc_h2": ("Our Security Services", "خدماتنا الأمنية"),
-  "svc_lead": ("From manned guarding to mobile patrols and event security, every deployment is tailored to the specific requirements of each client.",
-               "من الحراسة الأمنية إلى الدوريات المتنقلة وأمن الفعاليات، تُصمَّم كل خطة انتشار وفق متطلبات كل عميل على حدة."),
-  "about_eyebrow": ("About AZSCO", "عن أزسكو"),
-  "about_h2": ("A Leading Provider of Security Services in Kuwait", "مزوّد رائد للخدمات الأمنية في الكويت"),
-  "about_lead": ("AZSCO Security Services Company was established in 2014 and is headquartered in Qibla, Kuwait. Our team of highly trained and experienced security professionals is equipped with the latest technology and equipment to ensure the safety of your property and assets.",
-                 "تأسّست شركة أزسكو لخدمات حراسة المنشآت عام 2014 ويقع مقرّها في القبلة بالكويت. ويضمّ فريقنا كوادر أمنية مدرّبة وذات خبرة، مجهّزة بأحدث التقنيات والمعدات لضمان سلامة ممتلكاتك وأصولك."),
-  "about_checks": [
-    (("Customized solutions", "حلول مخصّصة"),
-     ("We understand that every client has unique security needs, and tailor our solutions to the specific requirements of each site.",
-      "ندرك أن لكل عميل احتياجات أمنية فريدة، ولذلك نصمّم حلولنا وفق متطلبات كل موقع.")),
-    (("Cost-effective and efficient", "فعّالة من حيث التكلفة والكفاءة"),
-     ("Our goal is to provide the highest level of security and peace of mind, while keeping our services efficient and affordable.",
-      "هدفنا تقديم أعلى مستوى من الأمن وراحة البال، مع الحفاظ على كفاءة خدماتنا وتكلفتها المعقولة.")),
-    (("Available around the clock", "متاحون على مدار الساعة"),
-     ("Our team of dedicated professionals is available 24 hours a day, 7 days a week.",
-      "فريقنا من المتخصصين المتفانين متاح على مدار 24 ساعة طوال أيام الأسبوع.")),
-  ],
-  "sec_eyebrow": ("Where We Guard", "أين نحرس"),
-  "sec_h2": ("Sectors We Protect", "القطاعات التي نحميها"),
-  "sec_lead": ("AZSCO is distinguished in offering security services such as security guards for apartments, malls, banks, stores and much more.",
-               "تتميّز أزسكو بتقديم خدمات أمنية مثل حراس الأمن للشقق والمجمّعات التجارية والبنوك والمتاجر وغيرها الكثير."),
-  "why_eyebrow": ("Why AZSCO", "لماذا أزسكو"),
-  "why_h2": ("Why Clients Choose Us", "لماذا يختارنا العملاء"),
-  "why_lead": ("A strong reputation for quality and reliability, built on people, technology and accountability.",
-               "سمعة قوية في الجودة والموثوقية، مبنية على الكوادر والتقنية والمساءلة."),
-  "why_tiles": [
-    ("award", ("Proven Reputation", "سمعة راسخة"),
-     ("A leading provider of security services in Kuwait, trusted for quality and reliability across commercial, industrial and residential sites.",
-      "مزوّد رائد للخدمات الأمنية في الكويت، موثوق به في الجودة والموثوقية عبر المواقع التجارية والصناعية والسكنية.")),
-    ("users", ("Trained Professionals", "كوادر مدرّبة"),
-     ("Highly trained and experienced security personnel, screened, licensed and supervised to a consistent operating standard.",
-      "كوادر أمنية مدرّبة وذات خبرة، مدقّقة أمنياً ومرخّصة وتخضع لإشراف وفق معيار تشغيلي ثابت.")),
-    ("award2", ("Established 2014", "تأسّست عام 2014"),
-     ("Guarding Kuwait for over {YEARS} years, with continuous growth that testifies to our commitment to excellence.",
-      "نحرس الكويت منذ أكثر من {YEARS} عاماً، بنموّ متواصل يشهد على التزامنا بالتميّز.")),
-    ("target", ("Tailored to You", "مصمّمة لك"),
-     ("Every client has unique security needs. We design customized solutions around your risk profile, site and operating hours.",
-      "لكل عميل احتياجات أمنية فريدة. نصمّم حلولاً مخصّصة وفق مستوى المخاطر لديك وموقعك وساعات عملك.")),
-    ("wallet", ("Cost-Effective", "فعّالة من حيث التكلفة"),
-     ("The highest level of security and peace of mind, delivered in a way that stays efficient and commercially sensible.",
-      "أعلى مستوى من الأمن وراحة البال، مقدَّم بأسلوب يحافظ على الكفاءة والجدوى التجارية.")),
-    ("headset", ("24/7 Availability", "متاحون على مدار الساعة"),
-     ("Our dedicated professionals are available 24 hours a day, 7 days a week &mdash; for supervision, response and support.",
-      "متخصصونا المتفانون متاحون على مدار 24 ساعة طوال أيام الأسبوع &mdash; للإشراف والاستجابة والدعم.")),
-  ],
-  "proc_eyebrow": ("How We Work", "كيف نعمل"),
-  "proc_h2": ("Our Process", "آلية عملنا"),
-  "proc_lead": ("A straightforward path from first conversation to a protected, maintained site.",
-                "مسار واضح من أول حديث حتى موقع محمي ومُدار."),
-  "steps": [
-    (("Consultation", "الاستشارة"), ("We listen to your requirements, operating hours and concerns to understand what actually needs protecting.",
-      "نستمع إلى متطلباتك وساعات عملك ومخاوفك لنفهم ما يحتاج فعلاً إلى الحماية.")),
-    (("Site Survey", "معاينة الموقع"), ("Our specialists assess the premises, identify vulnerabilities and map patrol routes, access points and risk.",
-      "يقيّم مختصّونا المنشأة ويحدّدون نقاط الضعف ويرسمون مسارات الدوريات ونقاط الدخول والمخاطر.")),
-    (("Tailored Proposal", "عرض مخصّص"), ("You receive a clear deployment plan and quotation &mdash; posts, shifts and cover &mdash; scoped to your budget.",
-      "تحصل على خطة انتشار وعرض سعر واضحين &mdash; النقاط والورديات والتغطية &mdash; ضمن ميزانيتك.")),
-    (("Deploy &amp; Supervise", "الانتشار والإشراف"), ("Officers are briefed and deployed, then supervised and audited with 24/7 support behind them.",
-      "يتم إحاطة الأفراد ونشرهم، ثم الإشراف عليهم وتدقيق عملهم بدعم متواصل على مدار الساعة.")),
-  ],
-  "part_eyebrow": ("Our Partners", "شركاؤنا"),
-  "part_h2": ("Strategic Partnerships", "شراكات استراتيجية"),
-  "part_lead": ("AZSCO has established strategic partnerships with leading industry players to enhance the range and quality of our security solutions.",
-                "أقامت أزسكو شراكات استراتيجية مع كبرى الشركات في القطاع لتعزيز نطاق وجودة حلولنا الأمنية."),
-  "part_btn": ("About Our Partnerships", "عن شراكاتنا"),
+    "title": ("Security Systems for Kuwait &mdash; Supplied, Installed and Maintained | AZSCO",
+              "أنظمة أمنية للكويت &mdash; توريد وتركيب وصيانة | أزسكو"),
+    "desc": ("Surveillance cameras, intrusion and fire alarms, access control, two-way radio "
+             "and network hardware &mdash; supplied, installed and maintained across Kuwait by "
+             "AZSCO. Free site survey, one quote for the whole system.",
+             "كاميرات مراقبة، وأنظمة إنذار وحريق، وتحكم بالدخول، وأجهزة اتصال لاسلكي وشبكات "
+             "&mdash; توريد وتركيب وصيانة في جميع أنحاء الكويت من أزسكو. معاينة مجانية وعرض "
+             "واحد للنظام بالكامل."),
+    "eyebrow": ("Security systems &mdash; Kuwait", "أنظمة أمنية &mdash; الكويت"),
+    "h1": ("SECURITY SYSTEMS, SPECIFIED FOR YOUR SITE",
+           "أنظمة أمنية مُصمّمة لموقعك"),
+    "lead": ("Cameras, alarms, access control and the network behind them &mdash; from one "
+             "supplier who surveys the site, installs the equipment and maintains it "
+             "afterwards. No box-shifting: every system is specified for the building it "
+             "goes into.",
+             "كاميرات وأنظمة إنذار وتحكم بالدخول والشبكة التي تربطها &mdash; من مورّد واحد "
+             "يعاين الموقع ويُركّب المعدات ويتولّى صيانتها بعد ذلك. لسنا بائعي صناديق: كل "
+             "نظام يُصمّم للمبنى الذي سيُركّب فيه."),
+    "pick_head": ("Start with what you need to protect",
+                  "ابدأ بما تريد حمايته"),
+    "pick_sub": ("Four categories, one quote.", "أربع فئات، وعرض سعر واحد."),
+    "assur": [("Free site survey before any quote", "معاينة مجانية قبل أي عرض سعر"),
+              ("Licensed installers, ISO 9001:2015", "فنّيون مرخّصون، أيزو 9001:2015"),
+              ("Maintenance and 24/7 monitoring", "صيانة ومراقبة على مدار الساعة")],
+    "cat_eyebrow": ("Catalogue", "الكتالوج"),
+    "cat_head": ("What we supply", "ما نقوم بتوريده"),
+    "cat_lead": ("Four product categories that are normally specified together &mdash; a camera "
+                 "is only as useful as the recorder behind it, and neither is any use without "
+                 "the network carrying them.",
+                 "أربع فئات من المنتجات تُحدَّد عادةً معاً &mdash; فالكاميرا لا تفيد أكثر من "
+                 "المسجّل الذي خلفها، وكلاهما بلا فائدة دون الشبكة التي تحملهما."),
+    "feat_eyebrow": ("Popular specifications", "مواصفات مطلوبة"),
+    "feat_head": ("Frequently specified", "الأكثر طلباً"),
+    "feat_lead": ("The equipment that appears in most of the systems we quote. Add anything "
+                  "here to a quote and tell us about the site &mdash; we will confirm the exact "
+                  "model after the survey.",
+                  "المعدات التي تتكرّر في معظم الأنظمة التي نقدّم عروضاً لها. أضف أياً منها "
+                  "إلى طلب عرض وأخبرنا عن الموقع &mdash; وسنؤكّد الطراز الدقيق بعد المعاينة."),
+    "how_eyebrow": ("How we work", "كيف نعمل"),
+    "how_head": ("Supply is the middle step, not the whole job",
+                 "التوريد خطوة في المنتصف، لا العمل كله"),
+    "how_lead": ("Equipment bought without a survey tends to be the wrong equipment, and "
+                 "equipment installed without maintenance stops working quietly. We quote "
+                 "all three together.",
+                 "المعدات التي تُشترى دون معاينة غالباً ما تكون غير مناسبة، والمعدات التي "
+                 "تُركّب دون صيانة تتوقف عن العمل بصمت. لذلك نقدّم الثلاثة في عرض واحد."),
+    "steps": [
+        (("Survey", "المعاينة"),
+         ("We walk the site, find the blind spots and the ways in, and agree what actually "
+          "needs covering before anything is priced.",
+          "نتفقّد الموقع، ونحدّد النقاط العمياء ومسارات الدخول، ونتفق على ما يحتاج تغطية "
+          "فعلاً قبل تسعير أي شيء.")),
+        (("Specify &amp; quote", "التحديد والتسعير"),
+         ("You get a drawing, a device schedule and one price covering equipment, "
+          "installation and the first year of maintenance.",
+          "تحصل على مخطّط وجدول للأجهزة وسعر واحد يشمل المعدات والتركيب والسنة الأولى من "
+          "الصيانة.")),
+        (("Install &amp; commission", "التركيب والتشغيل"),
+         ("Our own technicians cable, mount and configure the system, then hand it over "
+          "tested with your staff trained on it.",
+          "يقوم فنّيونا بالتمديد والتركيب والضبط، ثم يُسلّمون النظام مُختبراً مع تدريب "
+          "موظفيكم عليه.")),
+        (("Maintain &amp; monitor", "الصيانة والمراقبة"),
+         ("Scheduled service visits, a call-out number that answers, and optional "
+          "connection to our 24/7 Central Operations Room.",
+          "زيارات صيانة مجدولة، ورقم استدعاء يُجيب فعلاً، وربط اختياري بغرفة العمليات "
+          "المركزية لدينا على مدار الساعة.")),
+    ],
+    "brand_eyebrow": ("Brand lines", "العلامات التجارية"),
+    "brand_head": ("The lines we supply", "العلامات التي نورّدها"),
+    "brand_lead": ("Eight manufacturers behind the catalogue. Which line a site ends up with "
+                   "depends on what it needs, not on what we happen to hold.",
+                   "ثماني شركات مصنّعة خلف الكتالوج. والعلامة التي يستقر عليها الموقع تعتمد "
+                   "على احتياجه، لا على ما يتوفر لدينا."),
+    "sector_eyebrow": ("Where it goes in", "أين تُركّب"),
+    "sector_head": ("Sectors we equip", "القطاعات التي نخدمها"),
+    "sector_lead": ("The same four categories, specified very differently for a bank, a "
+                    "warehouse and a residential compound.",
+                    "الفئات الأربع نفسها، تُحدَّد بشكل مختلف تماماً للبنك والمستودع "
+                    "والمجمّع السكني."),
 }
 
 STATS = [
-    ("founded", ("Established in Kuwait", "تأسّست في الكويت")),
-    ("years",   ("Years of Experience", "عاماً من الخبرة")),
-    ("247",     ("Monitoring &amp; Response", "المتابعة والاستجابة")),
-    ("partners",("Technology Partners", "شركاء التقنية")),
+    ("founded", ("Established in Kuwait", "التأسيس في الكويت")),
+    ("years",   ("Years of operation", "سنوات من العمل")),
+    ("brands",  ("Manufacturer lines", "علامات مصنّعة")),
+    ("247",     ("Operations room", "غرفة العمليات")),
 ]
 
-# ============================================================ about
 ABOUT = {
-  "title": ("About Us | AZSCO Security Kuwait", "من نحن | أزسكو للأمن الكويت"),
-  "desc": ("AZSCO Security Services Company was established in 2014 in Qibla, Kuwait, offering facility guarding, VIP protection and rapid intervention, a central operations room, and security patrols.",
-           "تأسّست شركة أزسكو لخدمات حراسة المنشآت عام 2014 في القبلة بالكويت، وتقدّم حراسة المنشآت، وحماية الشخصيات والتدخّل السريع، وغرفة عمليات مركزية، ودوريات أمنية."),
-  "banner_h": ("About AZSCO", "عن أزسكو"),
-  "banner_p": ("A leading provider of security services in Kuwait, with a strong reputation for quality and reliability.",
-               "مزوّد رائد للخدمات الأمنية في الكويت، بسمعة قوية في الجودة والموثوقية."),
-  "crumb": ("About", "من نحن"),
-  "story_eyebrow": ("Our Story", "قصّتنا"),
-  "story_h2": ("Protecting Kuwait Since 2014", "نحمي الكويت منذ عام 2014"),
-  "story": [
-    ("AZSCO Security Services Company &mdash; formerly known as Almail Zone Security Services &mdash; was established in 2014 in Kuwait. AZSCO specialises in comprehensive security services including facility guarding, personal protection, security patrols, a central operations room and security systems, delivered by carefully selected, well-trained personnel.",
-     "تأسّست شركة أزسكو لخدمات حراسة المنشآت &mdash; المعروفة سابقاً بـ&laquo;شركة الميل زون للخدمات الأمنية&raquo; &mdash; عام 2014 في الكويت. ركّزت أزسكو على توفير خدمات أمنية متكاملة تشمل حراسة المنشآت وحماية الشخصيات والدوريات الأمنية وغرفة عمليات مركزية وأنظمة أمنية، من خلال كوادر مدرّبة يتم اختيارهم بعناية."),
-    ("AZSCO is committed to continuous development and embracing modern technologies, such as advanced security systems and specialised applications for managing sites and security personnel, aiming to deliver exceptional security services to its clients.",
-     "أظهرت أزسكو التزاماً قوياً بالتطوير المستمر وتبنّي التقنيات الحديثة مثل الأنظمة الأمنية المتطوّرة وتطبيقات خاصة لإدارة المواقع وأفراد الأمن، وذلك لتقديم خدمات أمنية مميّزة إلى عملائها."),
-    ("AZSCO is dedicated to forging long-term relationships with clients in both the public and private sectors, built on trust, collaboration, quality and development, with a focus on rapid response and efficient risk and threat management. Its continuous success and growth are a testament to its commitment to excellence and innovation in providing security and guarding services.",
-     "تلتزم أزسكو ببناء علاقات طويلة الأمد مع عملائها في القطاعين العام والخاص، وتعتمد في ذلك على معايير الثقة والتعاون والجودة والتطوير، مع التركيز على الاستجابة السريعة والكفاءة في إدارة المخاطر والتهديدات الأمنية. يشهد نجاحها ونموّها المستمر على التزامها بالتميّز والابتكار في تقديم خدمات الحراسة والأمن لعملائها."),
-  ],
-  "badge": (("2014", "2014"), ("Established", "سنة التأسيس")),
-  "mvv": [
-    ("award", ("Objective", "الهدف"),
-     ("To provide the highest levels of security and protection to our clients.",
-      "توفير أعلى مستويات الأمان والحماية لعملائنا.")),
-    ("eye", ("Vision", "الرؤية"),
-     ("At AZSCO, we are committed to achieving the highest standards of quality and innovation. Our goal is to lead in providing security services and solutions in Kuwait and the region, building a Kuwaiti brand with global standards that extends its expertise internationally.",
-      "نحن في أزسكو ملتزمون بتحقيق أعلى مستويات الجودة والابتكار، ونطمح لأن نكون في طليعة مقدّمي خدمات الحراسة والحلول الأمنية في الكويت والمنطقة. نهدف إلى بناء علامة تجارية كويتية بمعايير عالمية، تنقل خبراتها إلى العالمية.")),
-    ("target", ("Mission", "الرسالة"),
-     ("At AZSCO, we understand that our clients seek exceptional and effective security services that reflect their status. To achieve this, we focus on attracting and developing highly specialised and trained administrative, supervisory and security personnel, relying on the latest technologies and technological solutions.",
-      "في أزسكو، ندرك أن عملاءنا يبحثون عن خدمات أمنية مميّزة وفعّالة تتناسب مع مكانتهم. لتحقيق هذا، نركّز على جذب وتطوير كوادر إدارية وإشرافية وأمنية ذوي تخصّص وتدريب عالٍ، ونعتمد في عملنا على أحدث التقنيات والحلول التكنولوجية.")),
-  ],
-  "values_eyebrow": ("Our Values", "قيمنا"),
-  "values_h2": ("What We Stand On", "ما نقوم عليه"),
-  "commit_eyebrow": ("What Sets Us Apart", "ما يميّزنا"),
-  "commit_h2": ("Our Commitment", "التزامنا"),
-  "commit_lead": ("Everything we do is measured against one standard: does it make our client safer?",
-                  "كل ما نقوم به يُقاس بمعيار واحد: هل يجعل عميلنا أكثر أماناً؟"),
-  "commit_tiles": [
-    ("users", ("Highly Trained Personnel", "كوادر عالية التدريب"),
-     ("Our security professionals are screened, licensed, trained and supervised &mdash; and equipped with what they need to do the job properly.",
-      "كوادرنا الأمنية مدقّقة أمنياً ومرخّصة ومدرّبة وتخضع للإشراف &mdash; ومجهّزة بما تحتاجه لأداء العمل على أكمل وجه.")),
-    ("route", ("Managed, Not Just Staffed", "إدارة لا مجرّد توفير أفراد"),
-     ("Field supervisors, unannounced shift audits and documented reporting, so a contract is actively managed rather than simply filled.",
-      "مشرفون ميدانيون وتدقيق مفاجئ للورديات وتقارير موثّقة، ليكون العقد مُداراً فعلياً لا مجرّد عقد مُنفَّذ.")),
-    ("target", ("Customized Solutions", "حلول مخصّصة"),
-     ("Every client has unique security needs. We survey, assess and plan deployments around your site rather than selling a fixed package.",
-      "لكل عميل احتياجات أمنية فريدة. نعاين ونقيّم ونخطّط الانتشار وفق موقعك بدلاً من بيع باقة جاهزة.")),
-    ("clock", ("Available 24/7", "متاحون على مدار الساعة"),
-     ("Our team of dedicated professionals is available 24 hours a day, 7 days a week to provide the highest level of security and peace of mind.",
-      "فريقنا من المتخصصين المتفانين متاح على مدار 24 ساعة طوال أيام الأسبوع لتقديم أعلى مستوى من الأمن وراحة البال.")),
-  ],
-  "ceo_eyebrow": ("A Word From Our Leadership", "كلمة من إدارتنا"),
-  "ceo_h2": ("CEO&rsquo;s Message", "كلمة الرئيس التنفيذي"),
-  "ceo": [
-    ("Our commitment at AZSCO extends beyond just achieving success and profitability. We believe in the importance of maintaining our principles and values towards our employees, clients and community. Therefore, AZSCO&rsquo;s management prioritises the welfare, comfort and development of our security operations. Our employees are partners in success and a fundamental pillar in achieving it.",
-     "التزامنا يتجاوز مجرّد تحقيق النجاح والربحية في شركة أزسكو. نحن نؤمن بأهمية الحفاظ على مبادئنا وقيمنا تجاه موظفينا وعملائنا والمجتمع، ولذا تعتبر إدارة شركة أزسكو رفاهية الموظفين وراحتهم وتطوير العمل الأمني أولوية. موظفو أزسكو شركاء في النجاح ولبنة أساسية في تحقيقه."),
-    ("We continuously strive to provide a humane working environment that meets their basic needs without focusing on costs. Despite the high costs, we are committed to continuous development and adopting modern technologies, as they enhance work efficiency and quality. These technologies contribute to providing distinguished security services that protect the community and properties from risks, thereby building strong and sustainable relationships with our clients.",
-     "نسعى دائماً لتوفير بيئة عمل إنسانية تلبّي احتياجاتهم الأساسية دون التركيز على التكلفة. كما نعمل على التطوير المستمر وتبنّي التقنيات الحديثة رغم تكلفتها العالية، إلا أنها تعزّز كفاءة وجودة العمل وتسهم في تقديم خدمات أمنية متميّزة لحماية المجتمع والممتلكات من المخاطر، وبالتالي بناء علاقات قوية ومستدامة مع عملائنا."),
-  ],
-  "ceo_line": ("(Our Employees &mdash; Our Clients)", "(موظفونا &mdash; عملاؤنا)"),
-  "ceo_thanks": ("Thank you for your trust in us; with you, we rise.",
-                 "شكراً لكم على ثقتكم بنا، بكم نرتقي."),
-  "ceo_by": ("Dr. Abdulaziz Almail &mdash; Chief Executive Officer", "د. عبدالعزيز الميل &mdash; الرئيس التنفيذي"),
-  "clients_eyebrow": ("Our Clients", "عملاؤنا"),
-  "clients_h2": ("Trusted Across Kuwait", "موثوقون في جميع أنحاء الكويت"),
-  "clients_lead": ("AZSCO is committed to building long-term relationships with its clients in both the public and private sectors.",
-                   "تلتزم أزسكو ببناء علاقات طويلة الأمد مع عملائها في القطاعين العام والخاص."),
-  "clients_btn": ("View All Clients", "عرض جميع العملاء"),
-  "nat_eyebrow": ("Our People", "كوادرنا"),
-  "nat_h2": ("Available Nationalities", "الجنسيات المتوفرة"),
-  "nat_lead": ("AZSCO fields security guards from a range of nationalities. A diverse workforce brings cultural range, varied skills and multiple languages, along with a healthy, positive spirit of competition.",
-               "توفّر أزسكو حرّاس أمن من جنسيات متعدّدة. يمنح تنوّع الكوادر تنوّعاً ثقافياً ومهارات متعدّدة وتعدّد لغات، إلى جانب خلق روح تنافس إيجابية."),
-  "train_eyebrow": ("Preparedness", "الجاهزية"),
-  "train_h2": ("Training Courses", "الدورات التدريبية"),
-  "train_lead": ("Every AZSCO guard is trained across a range of courses designed to prepare them for a wide range of security and emergency situations, raising their efficiency and professionalism.",
-                 "يخضع كل حارس في أزسكو لدورات تدريبية متنوّعة تُعدّه لمواجهة مجموعة واسعة من المواقف الأمنية والطارئة، ما يرفع كفاءته واحترافيته."),
-  "equip_eyebrow": ("Equipped for the Job", "مجهّزون للمهمة"),
-  "equip_h2": ("Security Equipment", "المعدات الأمنية"),
-  "equip_lead": ("Security guards need the right equipment on hand to perform their duties effectively and safely.",
-                 "يحتاج حرّاس الأمن إلى مجموعة من المعدات الأمنية لأداء واجباتهم بفعالية وأمان."),
-  "uniform_eyebrow": ("On Site", "في الميدان"),
-  "uniform_h2": ("Uniform Models", "نماذج الزي الرسمي"),
-  "uniform_lead": ("Uniforms designed with safety, comfort and a professional appearance in mind, reflecting our commitment to exceptional security services.",
-                   "أزياء صُمّمت لتراعي معايير الأمان والراحة والمظهر المهني، وتعكس التزامنا بتقديم خدمات أمنية متميّزة."),
-  "cert_eyebrow": ("Independently Verified", "معتمدة رسمياً"),
-  "cert_h2": ("Certifications", "الشهادات"),
-  "faq_eyebrow": ("Questions", "أسئلة"),
-  "faq_h2": ("Frequently Asked", "الأسئلة الشائعة"),
-  "faq": [
-    (("What areas does AZSCO cover?", "ما المناطق التي تغطيها أزسكو؟"),
-     ("AZSCO provides security manpower across Kuwait, from our office at {ADDR}. Call {PHONE} to discuss coverage for your site.",
-      "توفّر أزسكو كوادر أمنية في جميع أنحاء الكويت، انطلاقاً من مكتبنا في {ADDR}. اتصل على {PHONE} لمناقشة تغطية موقعك.")),
-    (("What kinds of premises do you guard?", "ما أنواع المنشآت التي تحرسونها؟"),
-     ("AZSCO is distinguished in offering security services such as security guards for apartments, malls, banks, stores and much more, along with offices, compounds, industrial sites and events. Every deployment is planned around the specific requirements of the client.",
-      "تتميّز أزسكو بتقديم خدمات أمنية مثل حراس الأمن للشقق والمجمّعات التجارية والبنوك والمتاجر وغيرها الكثير، إضافة إلى المكاتب والمجمّعات والمواقع الصناعية والفعاليات. وتُخطَّط كل عملية انتشار وفق متطلبات العميل تحديداً.")),
-    (("How quickly can officers be deployed?", "ما السرعة التي يمكن بها نشر الأفراد؟"),
-     ("Timelines depend on the number of posts, the shift pattern and any vetting the site requires. After a free site survey we issue a proposal with a clear deployment schedule, the officers assigned and the supervision arrangements that come with them.",
-      "تعتمد المدة على عدد النقاط ونمط الورديات وأي تدقيق أمني يتطلبه الموقع. وبعد معاينة مجانية للموقع نصدر عرضاً يتضمّن جدولاً واضحاً للانتشار والأفراد المكلّفين وترتيبات الإشراف المرافقة لهم.")),
-    (("Is support available outside working hours?", "هل الدعم متاح خارج ساعات العمل؟"),
-     ("Our office hours are Sunday to Thursday, 8:30 AM to 4:30 PM, but our team of dedicated professionals is available 24 hours a day, 7 days a week for supervision, emergency response and escalations.",
-      "ساعات عمل مكتبنا من الأحد إلى الخميس، من 8:30 صباحاً إلى 4:30 مساءً، لكن فريقنا من المتخصصين متاح على مدار 24 ساعة طوال أيام الأسبوع للإشراف والاستجابة للطوارئ والحالات العاجلة.")),
-  ],
+    "title": ("About AZSCO &mdash; Security Systems Integrator in Kuwait | AZSCO",
+              "من نحن &mdash; شركة أنظمة أمنية في الكويت | أزسكو"),
+    "desc": ("AZSCO Security Services Company, established 2014 in Kuwait. We supply, "
+             "install and maintain security systems, backed by licensed manpower and a "
+             "24/7 central operations room. ISO 9001:2015 certified.",
+             "شركة أزسكو للخدمات الأمنية، تأسست عام 2014 في الكويت. نقوم بتوريد وتركيب "
+             "وصيانة الأنظمة الأمنية، مدعومة بكوادر مرخّصة وغرفة عمليات مركزية تعمل على "
+             "مدار الساعة. حاصلون على أيزو 9001:2015."),
+    "h1": ("ABOUT AZSCO", "من نحن"),
+    "sub": ("A Kuwaiti security company that both installs the system and answers it.",
+            "شركة أمنية كويتية تُركّب النظام وتستجيب له."),
+    "story_eyebrow": ("Our story", "قصتنا"),
+    "story_head": ("Equipment and the people behind it",
+                   "المعدات ومَن يقف خلفها"),
+    "story": [
+        ("AZSCO Security Services Company &mdash; formerly Almail Zone Security Services &mdash; "
+         "was established in Kuwait in 2014. It began as a manpower company: licensed, "
+         "trained and supervised officers guarding facilities across the country.",
+         "تأسست شركة أزسكو للخدمات الأمنية &mdash; وكانت تُعرف سابقاً بشركة الميل زون "
+         "للخدمات الأمنية &mdash; في الكويت عام 2014. بدأت كشركة كوادر أمنية: أفراد "
+         "مرخّصون ومدرّبون وخاضعون للإشراف يحرسون المنشآت في جميع أنحاء البلاد."),
+        ("Security systems followed, because the two problems are one problem. A camera "
+         "nobody watches records an incident for later; a guard without cameras covers "
+         "one place at a time. We now supply and install the systems as well as staffing "
+         "the sites, and our Central Operations Room watches both.",
+         "ثم جاءت الأنظمة الأمنية، لأن المشكلتين في الحقيقة مشكلة واحدة. فالكاميرا التي "
+         "لا يراقبها أحد تسجّل الحادث للاطلاع لاحقاً، والحارس بلا كاميرات يغطي مكاناً "
+         "واحداً في كل مرة. واليوم نقوم بتوريد الأنظمة وتركيبها إلى جانب تزويد المواقع "
+         "بالكوادر، وتراقب غرفة العمليات المركزية لدينا الاثنين معاً."),
+        ("That is the difference between us and a hardware supplier: we are the people "
+         "the alarm reaches. A system we install can report to a room that is staffed at "
+         "three in the morning, and to a patrol that can be at the site shortly after.",
+         "هذا هو الفرق بيننا وبين مورّد الأجهزة: نحن الجهة التي يصلها الإنذار. فالنظام "
+         "الذي نُركّبه يمكن أن يُبلّغ غرفة مأهولة في الثالثة فجراً، ودورية تصل إلى الموقع "
+         "بعد ذلك بوقت قصير."),
+    ],
+    "ovm": [
+        ("target", ("Objective", "هدفنا"),
+         ("To protect what our clients have built &mdash; their premises, their people and "
+          "their property &mdash; with systems that are specified honestly and maintained "
+          "properly.",
+          "حماية ما بناه عملاؤنا &mdash; منشآتهم وأفرادهم وممتلكاتهم &mdash; بأنظمة تُحدَّد "
+          "بصدق وتُصان كما ينبغي.")),
+        ("eye", ("Vision", "رؤيتنا"),
+         ("To be the security partner Kuwaiti organisations call first, trusted for the "
+          "advice as much as for the equipment.",
+          "أن نكون الشريك الأمني الذي تتصل به المؤسسات الكويتية أولاً، موثوقين في المشورة "
+          "بقدر ما نحن موثوقون في المعدات.")),
+        ("shield", ("Mission", "مهمتنا"),
+         ("To deliver security systems and manpower to a consistent standard, through "
+          "trained people, documented processes and equipment we are prepared to stand "
+          "behind.",
+          "تقديم أنظمة وكوادر أمنية بمستوى ثابت، عبر أشخاص مدرّبين وإجراءات موثّقة ومعدات "
+          "نقف خلفها.")),
+    ],
+    "why_eyebrow": ("Why buy the system from us", "لماذا تشتري النظام منّا"),
+    "why_head": ("What a supplier alone cannot offer",
+                 "ما لا يستطيع المورّد وحده تقديمه"),
+    "why": [
+        ("headset", ("The alarm reaches a staffed room", "الإنذار يصل إلى غرفة مأهولة"),
+         ("Our Central Operations Room is manned around the clock, so a system we install "
+          "can report to people rather than to an empty inbox.",
+          "غرفة العمليات المركزية لدينا مأهولة على مدار الساعة، فالنظام الذي نُركّبه يمكن "
+          "أن يُبلّغ أشخاصاً لا بريداً فارغاً.")),
+        ("route", ("A patrol can be sent", "يمكن إرسال دورية"),
+         ("Because we also provide the manpower, a confirmed alarm can put a patrol on "
+          "site instead of ending as a notification on someone's phone.",
+          "لأننا نوفّر الكوادر أيضاً، يمكن لإنذار مؤكَّد أن يضع دورية في الموقع بدلاً من "
+          "أن ينتهي كإشعار على هاتف أحدهم.")),
+        ("cog", ("One contract for the whole system", "عقد واحد للنظام بالكامل"),
+         ("Survey, equipment, installation, commissioning and maintenance come from one "
+          "company, so there is nobody to blame it on when something stops working.",
+          "المعاينة والمعدات والتركيب والتشغيل والصيانة من شركة واحدة، فلا يوجد طرف آخر "
+          "يُلقى عليه اللوم عند تعطّل شيء ما.")),
+        ("award", ("Certified and accountable", "معتمدون ومسؤولون"),
+         ("ISO 9001:2015 certified and licensed in Kuwait, with the documentation a "
+          "government or banking client is required to ask for.",
+          "حاصلون على أيزو 9001:2015 ومرخّصون في الكويت، مع الوثائق التي يُلزَم العميل "
+          "الحكومي أو المصرفي بطلبها.")),
+    ],
+    "faq_eyebrow": ("Questions", "أسئلة"),
+    "faq_head": ("Common questions", "أسئلة شائعة"),
+    "faq": [
+        (("Do you sell equipment without installation?",
+          "هل تبيعون المعدات دون تركيب؟"),
+         ("We prefer not to. Most systems that fail do so because of how they were "
+          "installed or configured, not because of the hardware, and we will not warrant "
+          "an installation we did not carry out. For a site with its own competent "
+          "technical team, talk to us &mdash; we will look at it case by case.",
+          "نفضّل ألّا نفعل. فمعظم الأنظمة التي تفشل تفشل بسبب طريقة التركيب أو الضبط، لا "
+          "بسبب الأجهزة، ولا نضمن تركيباً لم نقم به. أما المواقع التي لديها فريق فني "
+          "كفؤ، فتواصلوا معنا &mdash; وسندرس كل حالة على حدة.")),
+        (("Why are there no prices on the site?",
+          "لماذا لا توجد أسعار على الموقع؟"),
+         ("Because the same camera costs different amounts on different buildings. Cable "
+          "runs, mounting, power, existing infrastructure and the number of devices all "
+          "move the figure. A price quoted before the survey would be a guess, so we "
+          "survey first and then quote once.",
+          "لأن الكاميرا نفسها تكلّف مبالغ مختلفة في مبانٍ مختلفة. فمسارات الكابلات "
+          "والتثبيت والتغذية الكهربائية والبنية القائمة وعدد الأجهزة كلها تغيّر الرقم. "
+          "والسعر قبل المعاينة سيكون تخميناً، لذا نعاين أولاً ثم نقدّم عرضاً واحداً.")),
+        (("Can you take over a system somebody else installed?",
+          "هل يمكنكم تولّي نظام ركّبته جهة أخرى؟"),
+         ("Often, yes. We survey what is there, tell you honestly what is worth keeping "
+          "and what is past its life, and quote the gap. Taking over a sound installation "
+          "is cheaper for you than replacing it, and we will say so when that is the case.",
+          "غالباً نعم. نعاين الموجود، ونخبركم بصراحة بما يستحق الإبقاء عليه وما انتهى "
+          "عمره الافتراضي، ونقدّم عرضاً للفارق. فتولّي تركيب سليم أقل كلفة عليكم من "
+          "استبداله، وسنقول ذلك عندما يكون هو الحال.")),
+        (("How quickly can a system be installed?",
+          "كم يستغرق تركيب النظام؟"),
+         ("It depends on size and on how much cabling a finished building needs. A small "
+          "office is usually days; a compound or a tower is weeks and is programmed around "
+          "your operations. The survey gives you a schedule, not just a price.",
+          "يعتمد على الحجم وعلى حجم التمديدات التي يحتاجها مبنى مشطّب. فالمكتب الصغير "
+          "يستغرق أياماً عادةً، والمجمّع أو البرج أسابيع تُجدوَل حول سير عملكم. وتمنحكم "
+          "المعاينة جدولاً زمنياً لا سعراً فقط.")),
+        (("Do you maintain the system after installation?",
+          "هل تقومون بصيانة النظام بعد التركيب؟"),
+         ("Yes, and we would rather you took the contract. Detectors drift, lenses "
+          "attract dust, batteries expire and disks fill. Scheduled visits catch those "
+          "before the night they matter.",
+          "نعم، ونفضّل أن تأخذوا عقد الصيانة. فالكواشف تنحرف، والعدسات تتّسخ، والبطاريات "
+          "تنتهي، والأقراص تمتلئ. والزيارات المجدولة تكتشف ذلك قبل الليلة التي يهمّ فيها.")),
+    ],
 }
 
-# ============================================================ services page
-SERVICES_PAGE = {
-  "title": ("Security Services in Kuwait | AZSCO Security",
-            "خدمات أمنية في الكويت | أزسكو للأمن"),
-  "desc": ("AZSCO security services in Kuwait: facility guarding, VIP protection and rapid intervention, a central operations room, security patrols, and security systems.",
-           "خدمات أزسكو الأمنية في الكويت: حراسة المنشآت، وحماية الشخصيات والتدخل السريع، وغرفة عمليات مركزية، ودوريات أمنية، وأنظمة أمنية."),
-  "banner_h": ("Our Services", "خدماتنا"),
-  "banner_p": ("A comprehensive range of security services — manpower, a central operations room and monitored security systems — tailored to each client.",
-               "مجموعة شاملة من الخدمات الأمنية — كوادر أمنية، وغرفة عمليات مركزية، وأنظمة أمنية مراقَبة — مصمّمة لكل عميل."),
-  "crumb": ("Services", "خدماتنا"),
-  "over_eyebrow": ("Overview", "نظرة عامة"),
-  "over_h2": ("What AZSCO Delivers", "ما تقدّمه أزسكو"),
-  "over_lead": ("Every post, patrol and detail is planned around your premises, your operating hours and your risk &mdash; never a fixed package.",
-                "تُخطَّط كل نقطة حراسة ودورية ومهمة وفق منشأتك وساعات عملك ومستوى المخاطر لديك &mdash; وليس وفق باقة جاهزة."),
-  "service_label": ("Service", "الخدمة"),
-  "people_eyebrow": ("Our People", "كوادرنا"),
-  "people_h2": ("Trained, Vetted, Supervised", "مدرّبون، مدقّقون، تحت الإشراف"),
-  "people_lead": ("The strength of a manned security contract is the standard behind every shift.",
-                  "قوة عقد الحراسة الأمنية تكمن في المعيار الذي يقف خلف كل وردية."),
-  "people_tiles": [
-    ("shield-check", ("Screened &amp; Licensed", "مدقّقون ومرخّصون"),
-     ("Every officer is background checked and licensed before deployment, and briefed on site-specific post orders.",
-      "يخضع كل فرد للتدقيق الأمني والترخيص قبل نشره، ويُحاط بتعليمات الموقع الخاصة.")),
-    ("award", ("Continuously Trained", "تدريب مستمر"),
-     ("Ongoing training in entry control, emergency procedures, fire response, customer service and incident reporting.",
-      "تدريب متواصل على ضبط الدخول وإجراءات الطوارئ والاستجابة للحرائق وخدمة العملاء وكتابة تقارير الحوادث.")),
-    ("headset", ("Actively Supervised", "إشراف فعّال"),
-     ("Field supervisors, shift audits and an operations team reachable 24 hours a day, 7 days a week.",
-      "مشرفون ميدانيون وتدقيق للورديات وفريق عمليات يمكن الوصول إليه على مدار 24 ساعة طوال أيام الأسبوع.")),
-  ],
-  "cta": (("Not sure which service you need?", "لست متأكداً من الخدمة التي تحتاجها؟"),
-          ("Book a free site survey. We will assess your premises and recommend the right deployment of officers, patrols and supervision.",
-           "احجز معاينة مجانية للموقع. سنقيّم منشأتك ونوصي بالانتشار المناسب من الأفراد والدوريات والإشراف.")),
+SUPPORT = {
+    "title": ("Installation, Maintenance &amp; Support | AZSCO Security Systems",
+              "التركيب والصيانة والدعم | أنظمة أزسكو الأمنية"),
+    "desc": ("Installation, commissioning, maintenance contracts, warranty and 24/7 "
+             "monitoring for security systems across Kuwait, delivered by AZSCO's own "
+             "technicians.",
+             "التركيب والتشغيل وعقود الصيانة والضمان والمراقبة على مدار الساعة للأنظمة "
+             "الأمنية في جميع أنحاء الكويت، ينفّذها فنّيو أزسكو."),
+    "h1": ("INSTALLATION &amp; SUPPORT", "التركيب والدعم"),
+    "sub": ("Our own technicians install it, and the same company keeps it running.",
+            "فنّيونا هم مَن يُركّبه، والشركة نفسها هي مَن يُبقيه يعمل."),
+    "lead_eyebrow": ("What comes with the equipment", "ما يأتي مع المعدات"),
+    "lead_head": ("The parts of the job that are not the box",
+                  "أجزاء العمل التي ليست الصندوق"),
+    "blocks": [
+        ("pin", ("Site survey", "معاينة الموقع"),
+         ("Free, and before any price. We walk the building, identify entry points and "
+          "blind spots, check what power and cabling already exist, and agree the device "
+          "schedule with you.",
+          "مجانية، وقبل أي سعر. نتفقّد المبنى، ونحدّد نقاط الدخول والمناطق العمياء، "
+          "ونفحص ما هو متوفر من تغذية وتمديدات، ونتفق معكم على جدول الأجهزة.")),
+        ("cog", ("Installation &amp; commissioning", "التركيب والتشغيل"),
+         ("Cabling, mounting, configuration and testing by AZSCO technicians &mdash; not "
+          "subcontracted. Handover includes as-built drawings and training for your staff.",
+          "التمديد والتثبيت والضبط والاختبار على يد فنّيي أزسكو &mdash; دون مقاولين من "
+          "الباطن. ويشمل التسليم مخططات التنفيذ الفعلي وتدريباً لموظفيكم.")),
+        ("calendar", ("Maintenance contracts", "عقود الصيانة"),
+         ("Scheduled preventive visits &mdash; lenses cleaned, detectors tested, batteries "
+          "and disks replaced before they fail &mdash; plus a call-out commitment for faults "
+          "between visits.",
+          "زيارات وقائية مجدولة &mdash; تنظيف العدسات واختبار الكواشف واستبدال البطاريات "
+          "والأقراص قبل تعطّلها &mdash; مع التزام بالاستجابة للأعطال بين الزيارات.")),
+        ("headset", ("24/7 monitoring", "مراقبة على مدار الساعة"),
+         ("Optional connection to our Central Operations Room, which is staffed at every "
+          "hour and can dispatch an AZSCO patrol to a confirmed alarm.",
+          "ربط اختياري بغرفة العمليات المركزية لدينا، المأهولة في كل ساعة، والقادرة على "
+          "إرسال دورية أزسكو عند تأكّد الإنذار.")),
+        ("award", ("Warranty", "الضمان"),
+         ("Manufacturer warranty on the equipment, and our own warranty on the "
+          "installation work. Faults inside the period are corrected at no charge.",
+          "ضمان المُصنّع على المعدات، وضماننا على أعمال التركيب. وتُصحَّح الأعطال داخل "
+          "فترة الضمان دون رسوم.")),
+        ("users", ("Training", "التدريب"),
+         ("Your staff are shown how to use what was installed &mdash; arming, reviewing "
+          "footage, adding and removing a cardholder &mdash; because a system nobody can "
+          "operate is not installed, it is just present.",
+          "يُدرَّب موظفوكم على استخدام ما تم تركيبه &mdash; التفعيل ومراجعة التسجيلات "
+          "وإضافة حامل بطاقة أو إزالته &mdash; فالنظام الذي لا يعرف أحد تشغيله ليس "
+          "مُركّباً، بل موجوداً فقط.")),
+    ],
 }
 
-# ============================================================ clients page
-# The 19 client logos legible in the official company profile's "Our
-# Clients" panel (assets/img/photos/clients-logos.jpg), listed here as text
-# for accessibility and for anyone who wants the names without reading the
-# image. A handful of marks in that panel carry no readable name and are
-# intentionally left out of this list -- the image itself is the complete,
-# authoritative record.
-CLIENTS = [
-    ("Radisson Blu Hotel Kuwait", "فندق راديسون بلو الكويت"),
-    ("Ream — Trusted Partners", "ريم - شركاء موثوقون"),
-    ("Alnasser", "النصر"),
-    ("Massaleh Real Estate", "المصالح العقارية"),
-    ("Wataniya Resort", "منتجع الوطنية"),
-    ("Al-Ahleia Switchgear Co. K.S.C.C.", "شركة الأهلية للوحات الكهربائية"),
-    ("Ewan Complex", "مجمع إيوان"),
-    ("NBTC", "NBTC"),
-    ("Awtad", "أوتاد"),
-    ("National Contracting Co. Ltd. (NCC)", "الشركة الوطنية للمقاولات المحدودة"),
-    ("National Investments Company", "الشركة الوطنية للاستثمارات"),
-    ("Millennium Hotels and Resorts", "فنادق ومنتجعات ميلينيوم"),
-    ("Sahara Kuwait", "صحارى الكويت"),
-    ("Alghanim Industries", "صناعات الغانم"),
-    ("Wafra Real Estate", "وفرة العقارية"),
-    ("Kuwait Ports Authority", "مؤسسة الموانئ الكويتية"),
-    ("SHBC", "SHBC"),
-    ("Ministry of Electricity &amp; Water", "وزارة الكهرباء والماء"),
-    ("The Regency", "الريجنسي"),
-]
-
-CLIENTS_PAGE = {
-  "title": ("Our Clients | AZSCO Security Kuwait", "عملاؤنا | أزسكو للأمن الكويت"),
-  "desc": ("AZSCO is trusted by hotels, real estate developers, government bodies and industrial groups across Kuwait, including Radisson Blu Hotel Kuwait, Millennium Hotels and Resorts and Kuwait Ports Authority.",
-           "تحظى أزسكو بثقة الفنادق والمطوّرين العقاريين والجهات الحكومية والمجموعات الصناعية في جميع أنحاء الكويت، ومنها فندق راديسون بلو الكويت وفنادق ومنتجعات ميلينيوم ومؤسسة الموانئ الكويتية."),
-  "banner_h": ("Our Clients", "عملاؤنا"),
-  "banner_p": ("Long-term relationships with clients across Kuwait's public and private sectors.",
-               "علاقات طويلة الأمد مع عملائنا في القطاعين العام والخاص في الكويت."),
-  "crumb": ("Clients", "عملاؤنا"),
-  "eyebrow": ("Trusted Across Kuwait", "موثوقون في جميع أنحاء الكويت"),
-  "h2": ("Organisations That Rely on AZSCO", "جهات تثق بأزسكو"),
-  "lead": ("AZSCO is dedicated to forging long-term relationships with clients in both public and private sectors, built on trust, collaboration, quality and development.",
-           "تلتزم أزسكو ببناء علاقات طويلة الأمد مع عملائها في القطاعين العام والخاص، ترتكز على الثقة والتعاون والجودة والتطوير."),
-  "list_eyebrow": ("The List", "القائمة"),
-  "list_h2": ("Some of the Organisations We Protect", "بعض الجهات التي نحرسها"),
-  "cta": (("Don't see your sector listed?", "لا ترى قطاعك ضمن القائمة؟"),
-          ("AZSCO protects premises across government, commercial, financial, industrial, residential and many other sectors. Talk to us about yours.",
-           "تحرس أزسكو منشآت في القطاعات الحكومية والتجارية والمالية والصناعية والسكنية وقطاعات أخرى عديدة. تحدّث معنا عن قطاعك.")),
+QUOTE = {
+    "title": ("Request a Quote | AZSCO Security Systems",
+              "اطلب عرض سعر | أنظمة أزسكو الأمنية"),
+    "desc": ("Send AZSCO your list of security equipment and site details for a quotation "
+             "covering supply, installation and maintenance in Kuwait.",
+             "أرسل إلى أزسكو قائمة المعدات الأمنية وتفاصيل الموقع للحصول على عرض سعر يشمل "
+             "التوريد والتركيب والصيانة في الكويت."),
+    "h1": ("REQUEST A QUOTE", "اطلب عرض سعر"),
+    "sub": ("Your selected equipment, plus a few details about the site.",
+            "المعدات التي اخترتها، مع بعض التفاصيل عن الموقع."),
+    "how": [
+        (("1. You send the list", "1. ترسل القائمة"),
+         ("Whatever you have added here, plus what the site is and roughly how big.",
+          "ما أضفته هنا، مع بيان طبيعة الموقع وحجمه تقريباً.")),
+        (("2. We survey, free", "2. نعاين مجاناً"),
+         ("An engineer visits, checks the building and confirms what it actually needs.",
+          "يزور مهندس الموقع ويتفقّد المبنى ويؤكّد ما يحتاجه فعلاً.")),
+        (("3. One written quote", "3. عرض خطي واحد"),
+         ("Equipment, installation and maintenance in a single priced document.",
+          "المعدات والتركيب والصيانة في وثيقة مسعّرة واحدة.")),
+    ],
+    "form_head": ("Site &amp; contact details", "بيانات الموقع والتواصل"),
+    "form_note": ("We reply within one working day. For anything urgent, call &mdash; the "
+                  "number answers around the clock.",
+                  "نردّ خلال يوم عمل واحد. ولأي أمر عاجل، اتصل &mdash; فالرقم يُجيب على "
+                  "مدار الساعة."),
 }
 
-# ============================================================ partners page
-PARTNERS_PAGE = {
-  "title": ("Our Partners | AZSCO Security Kuwait", "شركاؤنا | أزسكو للأمن الكويت"),
-  "desc": ("AZSCO has established strategic partnerships with leading industry players to enhance the range and quality of our security solutions in Kuwait.",
-           "أقامت أزسكو شراكات استراتيجية مع كبرى الشركات في القطاع لتعزيز نطاق وجودة حلولنا الأمنية في الكويت."),
-  "banner_h": ("Our Partners", "شركاؤنا"),
-  "banner_p": ("AZSCO has established strategic partnerships with leading industry players to enhance the range and quality of our security solutions.",
-               "أقامت أزسكو شراكات استراتيجية مع كبرى الشركات في القطاع لتعزيز نطاق وجودة حلولنا الأمنية."),
-  "crumb": ("Partners", "شركاؤنا"),
-  "eyebrow": ("Strategic Partnerships", "شراكات استراتيجية"),
-  "h2": ("Backed by the Industry&rsquo;s Best", "بدعم من الأفضل في القطاع"),
-  "lead": ("AZSCO has partnerships with many global technology brands, whose cameras, alarms and monitoring equipment power our Security Systems service and support every site our officers protect.",
-           "لدى أزسكو شراكات مع العديد من العلامات التجارية التقنية العالمية، حيث تدعم كاميراتها وأنظمة إنذارها ومعدات المراقبة الخاصة بها خدمة الأنظمة الأمنية لدينا وكل موقع يحميه أفرادنا."),
-  "why_eyebrow": ("Why It Matters", "لماذا يهمّ ذلك"),
-  "why_h2": ("What Our Partnerships Give You", "ما الذي تمنحك إياه شراكاتنا"),
-  "tiles": [
-    ("award", ("Established Brands", "علامات تجارية راسخة"),
-     ("We work with recognised global manufacturers, so the products specified on a project are supported and available for years.",
-      "نتعامل مع مصنّعين عالميين معروفين، لتبقى المنتجات المعتمدة في المشروع مدعومة ومتوفّرة لسنوات.")),
-    ("target", ("The Right Fit", "الخيار الأنسب"),
-     ("Partnerships give us options, so each project gets the product that suits the site rather than the one we happen to stock.",
-      "توفّر لنا الشراكات خيارات متعددة، ليحصل كل مشروع على المنتج الذي يناسب الموقع لا المنتج المتوفّر لدينا صدفة.")),
-    ("users", ("Backing Our Officers", "دعم لأفرادنا"),
-     ("Reliable equipment on site supports the officers guarding it, from the entry system at the door to the cameras they watch.",
-      "المعدات الموثوقة في الموقع تدعم الأفراد الذين يحرسونه، من نظام الدخول عند الباب إلى الكاميرات التي يتابعونها.")),
-  ],
-  "join_eyebrow": ("Work With Us", "اعمل معنا"),
-  "join_h2": ("Become an AZSCO Partner", "كن شريكاً لأزسكو"),
-  "join_lead": ("We are always interested in working with manufacturers, distributors, consultants and contractors who share our standard of delivery.",
-                "يسعدنا دائماً التعاون مع المصنّعين والموزّعين والاستشاريين والمقاولين الذين يشاركوننا معايير التنفيذ."),
-  "join_p": ("If your products or services would strengthen what we offer clients in Kuwait, we would like to hear from you. Send an outline of your proposal to {EMAIL} or call {PHONE}.",
-             "إذا كانت منتجاتك أو خدماتك تعزّز ما نقدّمه لعملائنا في الكويت، يسرّنا أن نسمع منك. أرسل ملخّصاً لعرضك إلى {EMAIL} أو اتصل على {PHONE}."),
-  "join_btn": ("Start a Conversation", "ابدأ الحوار"),
-}
-
-# ============================================================ contact page
 CONTACT = {
-  "title": ("Contact AZSCO Security | Kuwait", "اتصل بأزسكو للأمن | الكويت"),
-  "desc": ("Contact AZSCO Security in Kuwait. Office: Floor 27B, Kuwait Building Tower, Fahad Al Salem St., Qibla, Kuwait. Tel (+965) 1808606. Email info@azsco.com. Request a free site survey.",
-           "تواصل مع أزسكو للأمن في الكويت. المكتب: الدور 27B، برج مبنى الكويت، شارع فهد السالم، القبلة، الكويت. هاتف (+965) 1808606. بريد إلكتروني info@azsco.com. اطلب معاينة مجانية للموقع."),
-  "banner_h": ("Contact Us", "اتصل بنا"),
-  "banner_p": ("Talk to AZSCO about guarding or a free site survey. Our team is available 24 hours a day, 7 days a week.",
-               "تحدّث مع أزسكو حول خدمات الحراسة أو معاينة مجانية للموقع. فريقنا متاح على مدار 24 ساعة طوال أيام الأسبوع."),
-  "crumb": ("Contact", "اتصل بنا"),
-  "cards": [
-    ("pin",  ("Visit Our Office", "زُر مكتبنا"), None),
-    ("phone",("Call Us", "اتصل بنا"), ("24/7 emergency response", "استجابة للطوارئ على مدار الساعة")),
-    ("mail", ("Email Us", "راسلنا"), None),
-  ],
-  "form_eyebrow": ("Get In Touch", "تواصل معنا"),
-  "form_h2": ("Request a Free Site Survey", "اطلب معاينة مجانية للموقع"),
-  "form_lead": ("Tell us a little about your premises and what you need protected. One of our security consultants will contact you to arrange a survey and prepare a tailored proposal.",
-                "أخبرنا قليلاً عن منشأتك وما تحتاج إلى حمايته. سيتواصل معك أحد مستشارينا الأمنيين لترتيب المعاينة وإعداد عرض مخصّص."),
-  "fields": {
-    "name":    ("Full Name", "الاسم الكامل"),
-    "name_ph": ("Your name", "اسمك"),
-    "company": ("Company", "الشركة"),
-    "company_ph": ("Company name", "اسم الشركة"),
-    "email":   ("Email", "البريد الإلكتروني"),
-    "phone":   ("Phone", "الهاتف"),
-    "service": ("Inquiry Type", "نوع الاستفسار"),
-    "select":  ("Please select&hellip;", "اختر&hellip;"),
-    "message": ("How Can We Help?", "كيف يمكننا مساعدتك؟"),
-    "message_ph": ("Tell us about your site, the number of officers or posts you need, operating hours, and what you need protected.",
-                   "أخبرنا عن موقعك، وعدد الأفراد أو النقاط التي تحتاجها، وساعات العمل، وما تريد حمايته."),
-    "submit":  ("Send Enquiry", "إرسال الطلب"),
-    "note":    ("By submitting this form you agree to our {PRIVACY}. For urgent matters please call {PHONE}.",
-                "بإرسال هذا النموذج فإنك توافق على {PRIVACY}. وللأمور العاجلة يُرجى الاتصال على {PHONE}."),
-    "req":     ("This field is required.", "هذا الحقل مطلوب."),
-    "bad_email": ("Please enter a valid email address.", "يُرجى إدخال بريد إلكتروني صحيح."),
-    "bad_phone": ("Please enter a valid phone number.", "يُرجى إدخال رقم هاتف صحيح."),
-    "choose":  ("Please choose an inquiry type.", "يُرجى اختيار نوع الاستفسار."),
-  },
-  "options": [
-    ("general", ("General Inquiry", "استفسار عام")),
-    ("service", ("Inquiry About a Service", "استفسار عن خدمة")),
-  ],
-  "quote_prefill": ("I would like a quote for: {SERVICE}. ",
-                     "أرغب في الحصول على عرض سعر لـ: {SERVICE}. "),
-  "office_hours": ("Office hours", "ساعات العمل"),
-  "emergency": ("Emergency response", "الاستجابة للطوارئ"),
-  "emergency_v": ("Available 24 hours a day, 7 days a week", "متاحة على مدار 24 ساعة طوال أيام الأسبوع"),
-  "cta": (("Prefer to speak to someone now?", "تفضّل التحدّث مع أحدهم الآن؟"),
-          ("Our team is available 24 hours a day, 7 days a week for urgent security matters.",
-           "فريقنا متاح على مدار 24 ساعة طوال أيام الأسبوع للأمور الأمنية العاجلة.")),
-  "sent": ("Thank you for contacting AZSCO. Your enquiry has been sent — a member of our team will respond shortly. For urgent matters call (+965) 1808606.",
-           "شكراً لتواصلك مع أزسكو. تم إرسال طلبك وسيتواصل معك أحد أعضاء فريقنا قريباً. وللأمور العاجلة اتصل على (+965) 1808606."),
-  "sending": ("Sending your enquiry&hellip;", "جارٍ إرسال طلبك&hellip;"),
-  "send_failed": ("Sorry, your enquiry could not be sent just now. Please call (+965) 1808606 or email sales@azsco.com and we will pick it up straight away.",
-                  "عذراً، تعذّر إرسال طلبك في الوقت الحالي. يُرجى الاتصال على (+965) 1808606 أو مراسلتنا على sales@azsco.com وسنتابع طلبك فوراً."),
-  "honeypot": ("Leave this field empty", "اترك هذا الحقل فارغاً"),
+    "title": ("Contact AZSCO &mdash; Security Systems in Kuwait | AZSCO",
+              "اتصل بأزسكو &mdash; أنظمة أمنية في الكويت | أزسكو"),
+    "desc": ("Contact AZSCO Security in Kuwait. Floor 27B, Kuwait Building Tower, Fahad Al "
+             "Salem St., Qibla. Tel (+965) 1808606. Free site survey for security systems.",
+             "تواصل مع أزسكو للأمن في الكويت. الدور 27B، برج مبنى الكويت، شارع فهد السالم، "
+             "القبلة. هاتف (+965) 1808606. معاينة مجانية لأنظمة الأمن."),
+    "h1": ("CONTACT US", "اتصل بنا"),
+    "sub": ("Talk to the team about a site, a system or a fault.",
+            "تحدّث مع الفريق بشأن موقع أو نظام أو عطل."),
+    "office": ("Office", "المكتب"),
+    "hours_h": ("Office hours", "ساعات العمل"),
+    "phone_h": ("Telephone", "الهاتف"),
+    "email_h": ("Email", "البريد الإلكتروني"),
+    "emerg": ("Emergency and monitoring: 24 hours, every day.",
+              "الطوارئ والمراقبة: 24 ساعة، كل يوم."),
 }
 
-# ============================================================ 404
-NOTFOUND = {
-  "title": ("Page Not Found | AZSCO Security", "الصفحة غير موجودة | أزسكو للأمن"),
-  "desc": ("The page you requested could not be found on the AZSCO Security website.",
-           "الصفحة التي طلبتها غير موجودة على موقع أزسكو للأمن."),
-  "eyebrow": ("Error 404", "خطأ 404"),
-  "h1": ("Page Not Found", "الصفحة غير موجودة"),
-  "lead": ("The page you are looking for may have been moved or no longer exists. Let us get you back to safety.",
-           "ربما تم نقل الصفحة التي تبحث عنها أو لم تعد موجودة. دعنا نعيدك إلى برّ الأمان."),
-  "back": ("Back to Home", "العودة إلى الرئيسية"),
-  "contact": ("Contact Us", "اتصل بنا"),
-}
-
-# ============================================================ privacy policy
 PRIVACY = {
-  "title": ("Privacy Policy | AZSCO Security", "سياسة الخصوصية | أزسكو للأمن"),
-  "desc": ("AZSCO Security privacy policy — how we collect, use, share and protect the personal information you provide through our website and services.",
-           "سياسة الخصوصية لدى أزسكو للأمن — كيف نجمع المعلومات الشخصية التي تقدّمها عبر موقعنا وخدماتنا ونستخدمها ونشاركها ونحميها."),
-  "banner_h": ("Privacy Policy", "سياسة الخصوصية"),
-  "banner_p": ("How AZSCO collects, uses and protects the personal information you share with us.",
-               "كيف تجمع أزسكو المعلومات الشخصية التي تشاركها معنا وتستخدمها وتحميها."),
-  "crumb": ("Privacy Policy", "سياسة الخصوصية"),
-  "updated": ("Last updated: January 2026", "آخر تحديث: يناير 2026"),
-  "intro": ("{COMPANY} (&ldquo;AZSCO&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) respects your privacy. This policy explains what personal information we collect through this website and our services, how we use it, and the choices available to you.",
-            "تحترم {COMPANY} (&laquo;أزسكو&raquo;، &laquo;نحن&raquo;) خصوصيتك. توضّح هذه السياسة المعلومات الشخصية التي نجمعها عبر هذا الموقع وخدماتنا، وكيفية استخدامنا لها، والخيارات المتاحة أمامك."),
-  "sections": [
-    (("Information We Collect", "المعلومات التي نجمعها"),
-     [("p", ("We collect information that you provide directly to us, and a limited amount of technical information collected automatically when you visit this website.",
-             "نجمع المعلومات التي تقدّمها لنا مباشرة، وقدراً محدوداً من المعلومات التقنية التي تُجمع تلقائياً عند زيارتك لهذا الموقع.")),
-      ("ul", [("<b>Information you provide:</b> your name, company, email address, telephone number, the service you are enquiring about, and any details you include in an enquiry or quotation request.",
-               "<b>المعلومات التي تقدّمها:</b> اسمك، والشركة، والبريد الإلكتروني، ورقم الهاتف، والخدمة التي تستفسر عنها، وأي تفاصيل تدرجها في الاستفسار أو طلب عرض السعر."),
-              ("<b>Technical information:</b> browser type, device type, approximate location, referring page and pages viewed, collected through server logs and cookies.",
-               "<b>المعلومات التقنية:</b> نوع المتصفح، ونوع الجهاز، والموقع التقريبي، والصفحة المُحيلة والصفحات التي تمت زيارتها، وتُجمع عبر سجلات الخادم وملفات تعريف الارتباط."),
-              ("<b>Service information:</b> where you become a client, records relating to site surveys, deployments, shift rosters, patrol visits and incident reports.",
-               "<b>معلومات الخدمة:</b> عندما تصبح عميلاً، السجلات المتعلقة بمعاينات المواقع وخطط الانتشار وجداول الورديات وزيارات الدوريات وتقارير الحوادث.")])]),
-    (("How We Use Your Information", "كيف نستخدم معلوماتك"),
-     [("ul", [("To respond to your enquiry and prepare quotations or proposals.", "للردّ على استفسارك وإعداد عروض الأسعار أو المقترحات."),
-              ("To arrange and carry out site surveys, deployments, patrols and supervision.", "لترتيب وتنفيذ معاينات المواقع وخطط الانتشار والدوريات والإشراف."),
-              ("To provide customer support and manage our contractual relationship with you.", "لتقديم دعم العملاء وإدارة علاقتنا التعاقدية معك."),
-              ("To improve this website, our services and our communications.", "لتحسين هذا الموقع وخدماتنا وتواصلنا."),
-              ("To comply with legal, regulatory and licensing obligations in the State of Kuwait.", "للامتثال للالتزامات القانونية والتنظيمية والترخيصية في دولة الكويت.")])]),
-    (("Cookies", "ملفات تعريف الارتباط"),
-     [("p", ("This website does not use advertising or tracking cookies. The AZSCO Assistant chat widget stores your conversation in your own browser (session storage) so it survives moving between pages; it is cleared when you close the tab and is never sent anywhere except to answer your questions. Where we measure visitor numbers, we use a privacy-friendly analytics service that sets no cookies and does not identify individual visitors. You can clear this storage at any time through your browser settings.",
-             "لا يستخدم هذا الموقع ملفات تعريف ارتباط للإعلانات أو التتبّع. يحتفظ مساعد أزسكو بمحادثتك داخل متصفحك أنت (تخزين الجلسة) لتبقى متاحة أثناء تنقّلك بين الصفحات، وتُمسح عند إغلاق التبويب ولا تُرسل إلى أي جهة إلا للردّ على أسئلتك. وعند قياس أعداد الزوار نستخدم خدمة تحليلات تحترم الخصوصية لا تضع ملفات تعريف ارتباط ولا تحدّد هوية الزوار. ويمكنك مسح هذا التخزين في أي وقت من إعدادات متصفحك."))]),
-    (("Sharing Your Information", "مشاركة معلوماتك"),
-     [("p", ("We do not sell your personal information. We may share it with:", "نحن لا نبيع معلوماتك الشخصية. وقد نشاركها مع:")),
-      ("ul", [("Service providers who support our operations, such as hosting and IT providers, under confidentiality obligations.",
-               "مزوّدي الخدمات الذين يدعمون عملياتنا، مثل مزوّدي الاستضافة وتقنية المعلومات، بموجب التزامات السرية."),
-              ("Technology partners and manufacturers where necessary to fulfil warranty or support obligations on products supplied for a project.",
-               "شركاء التقنية والمصنّعين عند الضرورة للوفاء بالتزامات الضمان أو الدعم للمنتجات المورَّدة لمشروع ما."),
-              ("Competent authorities where disclosure is required by law or to protect life and property.",
-               "الجهات المختصة عندما يكون الإفصاح مطلوباً بموجب القانون أو لحماية الأرواح والممتلكات.")])]),
-    (("Data Security", "أمن البيانات"),
-     [("p", ("We apply appropriate technical and organisational measures to protect personal information against unauthorised access, loss or misuse. No method of transmission or storage is completely secure, but we work to protect your information and to review our safeguards regularly.",
-             "نطبّق تدابير تقنية وتنظيمية مناسبة لحماية المعلومات الشخصية من الوصول غير المصرّح به أو الفقدان أو سوء الاستخدام. ولا توجد وسيلة نقل أو تخزين آمنة تماماً، لكننا نعمل على حماية معلوماتك ومراجعة إجراءاتنا الوقائية بانتظام."))]),
-    (("Data Retention", "الاحتفاظ بالبيانات"),
-     [("p", ("We keep personal information only for as long as necessary for the purposes described in this policy, or for as long as required by applicable law, contract or licensing requirements.",
-             "نحتفظ بالمعلومات الشخصية للمدة اللازمة للأغراض الموضّحة في هذه السياسة فقط، أو للمدة التي يقتضيها القانون المعمول به أو العقد أو متطلبات الترخيص."))]),
-    (("Your Rights", "حقوقك"),
-     [("p", ("You may request access to the personal information we hold about you, ask us to correct inaccurate information, or ask us to delete information where we are not required to retain it. To make a request, contact us using the details below.",
-             "يمكنك طلب الاطّلاع على المعلومات الشخصية التي نحتفظ بها عنك، أو مطالبتنا بتصحيح المعلومات غير الدقيقة، أو حذف المعلومات التي لا يُلزمنا القانون بالاحتفاظ بها. ولتقديم طلب، تواصل معنا عبر البيانات أدناه."))]),
-    (("Client Premises and Monitoring", "منشآت العملاء والمراقبة"),
-     [("p", ("Where AZSCO officers work at a client&rsquo;s premises, any CCTV or entry system at that site remains the client&rsquo;s own, and the client is responsible for how it is used. AZSCO processes such data only as instructed by the client and as permitted by applicable law.",
-             "عندما يعمل أفراد أزسكو في منشأة أحد العملاء، تبقى أي كاميرات مراقبة أو أنظمة دخول في ذلك الموقع ملكاً للعميل، ويتحمّل العميل مسؤولية كيفية استخدامها. ولا تعالج أزسكو هذه البيانات إلا وفق تعليمات العميل وبما يسمح به القانون المعمول به."))]),
-    (("Third-Party Links", "روابط الجهات الخارجية"),
-     [("p", ("This website may link to third-party sites. We are not responsible for the privacy practices or content of those sites, and we encourage you to read their privacy policies.",
-             "قد يتضمّن هذا الموقع روابط لمواقع تابعة لجهات خارجية. ولسنا مسؤولين عن ممارسات الخصوصية أو المحتوى في تلك المواقع، وننصحك بقراءة سياسات الخصوصية الخاصة بها."))]),
-    (("Changes to This Policy", "التعديلات على هذه السياسة"),
-     [("p", ("We may update this policy from time to time. The revised version will be posted on this page with an updated date.",
-             "قد نحدّث هذه السياسة من وقت لآخر. وستُنشر النسخة المعدّلة على هذه الصفحة مع تاريخ التحديث."))]),
-  ],
-  "contact_h": ("Contact Us", "اتصل بنا"),
-  "contact_p": ("If you have questions about this Privacy Policy or how we handle your information, please contact us:",
-                "إذا كانت لديك أسئلة حول سياسة الخصوصية هذه أو كيفية تعاملنا مع معلوماتك، يُرجى التواصل معنا:"),
-  "tel_label": ("Telephone:", "الهاتف:"),
-  "email_label": ("Email:", "البريد الإلكتروني:"),
+    "title": ("Privacy Policy | AZSCO Security Systems", "سياسة الخصوصية | أنظمة أزسكو الأمنية"),
+    "desc": ("How AZSCO Security handles the information you send through this website, "
+             "including quote requests and the assistant.",
+             "كيف تتعامل أزسكو للأمن مع المعلومات التي ترسلها عبر هذا الموقع، بما في ذلك "
+             "طلبات عروض الأسعار والمساعد."),
+    "h1": ("PRIVACY POLICY", "سياسة الخصوصية"),
+    "sub": ("What this site collects, and what it does not.",
+            "ما يجمعه هذا الموقع، وما لا يجمعه."),
+    "sections": [
+        (("What we collect", "ما الذي نجمعه"),
+         ("Only what you type into a form and send: your name, company, email address, "
+          "telephone number, the details you give about your site, and any products you "
+          "added to a quote. Nothing is collected from you simply for reading a page.",
+          "فقط ما تكتبه في النموذج وترسله: اسمك وشركتك وبريدك الإلكتروني ورقم هاتفك "
+          "وتفاصيل موقعك والمنتجات التي أضفتها إلى طلب العرض. ولا يُجمع منك شيء لمجرد "
+          "تصفّح صفحة.")),
+        (("Your quote list stays in your browser", "قائمة طلبك تبقى في متصفحك"),
+         ("Products you add to a quote are stored on your own device, in your browser, so "
+          "the list survives moving between pages. It is not sent anywhere until you "
+          "submit the form, and clearing the list removes it.",
+          "تُحفظ المنتجات التي تضيفها إلى طلب العرض على جهازك، داخل متصفحك، لتبقى القائمة "
+          "عند الانتقال بين الصفحات. ولا تُرسَل إلى أي جهة حتى ترسل النموذج، ومسح القائمة "
+          "يزيلها.")),
+        (("Why we use it", "لماذا نستخدمها"),
+         ("To answer your enquiry, arrange a survey and prepare a quotation. We do not "
+          "sell your information, and we do not send marketing you did not ask for.",
+          "للردّ على استفسارك وترتيب معاينة وإعداد عرض السعر. ولا نبيع معلوماتك، ولا نرسل "
+          "مواد تسويقية لم تطلبها.")),
+        (("The assistant", "المساعد"),
+         ("Messages you type into the on-page assistant are sent to our server, which "
+          "passes them to a language-model provider to produce an answer. Do not put "
+          "confidential site details or personal data into it &mdash; use the form or the "
+          "telephone for those.",
+          "تُرسَل الرسائل التي تكتبها في المساعد إلى خادمنا، الذي يمرّرها إلى مزوّد نموذج "
+          "لغوي لتوليد الإجابة. لا تُدخل فيه تفاصيل حسّاسة عن الموقع أو بيانات شخصية "
+          "&mdash; استخدم النموذج أو الهاتف لذلك.")),
+        (("Cookies and analytics", "ملفات تعريف الارتباط والتحليلات"),
+         ("This site sets no advertising or tracking cookies. If website analytics are "
+          "enabled, they are of a kind that records no personal data and sets no cookie.",
+          "لا يضع هذا الموقع ملفات تعريف ارتباط إعلانية أو تتبّعية. وإذا فُعّلت تحليلات "
+          "الموقع، فهي من نوع لا يسجّل بيانات شخصية ولا يضع ملفات تعريف ارتباط.")),
+        (("Keeping and deleting it", "الاحتفاظ والحذف"),
+         ("Enquiries are kept only as long as needed to deal with them and to meet our "
+          "record-keeping obligations. To ask what we hold about you, or to have it "
+          "deleted, email us and we will action it.",
+          "يُحتفظ بالاستفسارات للمدة اللازمة لمعالجتها والوفاء بالتزامات حفظ السجلات "
+          "لدينا. وللاستفسار عمّا نحتفظ به عنك أو طلب حذفه، راسلنا وسننفّذ ذلك.")),
+        (("Changes", "التعديلات"),
+         ("If this policy changes, the revised version appears on this page.",
+          "إذا تغيّرت هذه السياسة، تظهر النسخة المعدّلة على هذه الصفحة.")),
+    ],
+    "contact_line": ("Questions about this policy:", "أسئلة حول هذه السياسة:"),
 }
+
+NOTFOUND = {
+    "title": ("Page Not Found | AZSCO Security Systems", "الصفحة غير موجودة | أنظمة أزسكو الأمنية"),
+    "desc": ("That page does not exist. Browse the security systems catalogue or contact "
+             "AZSCO in Kuwait.",
+             "هذه الصفحة غير موجودة. تصفّح كتالوج الأنظمة الأمنية أو تواصل مع أزسكو في الكويت."),
+    "h1": ("404", "404"),
+    "head": ("We could not find that page", "تعذّر العثور على تلك الصفحة"),
+    "text": ("The address may be out of date, or mistyped. The catalogue and the main "
+             "pages are below.",
+             "قد يكون العنوان قديماً أو مكتوباً بشكل خاطئ. الكتالوج والصفحات الرئيسية أدناه."),
+}
+
+CATALOGUE = {
+    "title": ("Security Systems Catalogue &mdash; Cameras, Alarms, Access Control | AZSCO",
+              "كتالوج الأنظمة الأمنية &mdash; كاميرات وإنذار وتحكم بالدخول | أزسكو"),
+    "desc": ("Browse AZSCO's security systems catalogue: surveillance cameras and "
+             "recorders, intrusion and fire detection, access control, two-way radio and "
+             "network hardware. Supplied and installed in Kuwait.",
+             "تصفّح كتالوج الأنظمة الأمنية من أزسكو: كاميرات المراقبة وأجهزة التسجيل، "
+             "وكشف التسلل والحريق، والتحكم بالدخول، وأجهزة الاتصال والشبكات. توريد وتركيب "
+             "في الكويت."),
+    "h1": ("PRODUCT CATALOGUE", "كتالوج المنتجات"),
+    "sub": ("Everything we supply, install and maintain &mdash; filter by category or brand line.",
+            "كل ما نورّده ونركّبه ونصونه &mdash; صفِّ حسب الفئة أو العلامة التجارية."),
+}
+
+BRANDS_PAGE = {
+    "title": ("Brands We Supply &mdash; Security Systems in Kuwait | AZSCO",
+              "العلامات التي نورّدها &mdash; أنظمة أمنية في الكويت | أزسكو"),
+    "desc": ("The eight manufacturer lines behind AZSCO's security systems catalogue: "
+             "Ajax, Hikvision, Avigilon, Pelco, Rasilient, Motorola, Inrico and Teltonika.",
+             "ثماني علامات مصنّعة خلف كتالوج الأنظمة الأمنية من أزسكو: أجاكس، هيكفيجن، "
+             "أفيجيلون، بيلكو، راسيليينت، موتورولا، إنريكو، تيلتونيكا."),
+    "h1": ("BRANDS WE SUPPLY", "العلامات التي نورّدها"),
+    "sub": ("Eight manufacturer lines, specified per site rather than pushed as a default.",
+            "ثماني علامات مصنّعة، تُحدَّد حسب الموقع لا تُفرض كخيار افتراضي."),
+    "lead_head": ("Why the brand is the last decision, not the first",
+                  "لماذا تكون العلامة آخر قرار لا أوله"),
+    "lead": ("A brand is a means, not a specification. What a site needs &mdash; the coverage, "
+             "the retention, the number of doors, whether there is a fixed line &mdash; is "
+             "settled at the survey. Which of these lines delivers it best is settled "
+             "afterwards, and we will tell you plainly when a cheaper line does the job.",
+             "العلامة وسيلة لا مواصفة. فما يحتاجه الموقع &mdash; التغطية ومدة الاحتفاظ "
+             "وعدد الأبواب ووجود خط ثابت من عدمه &mdash; يُحسم عند المعاينة. أما أي من هذه "
+             "العلامات يحقّقه على نحو أفضل فيُحسم بعد ذلك، وسنقول لك بوضوح متى كانت علامة "
+             "أقل كلفة كافية للمهمة."),
+}
+
+# Quote form labels. Errors are marked by weight, an inset rule and a warning
+# glyph rather than colour -- the palette has no red to spend.
+FORM = {
+    "name":     ("Your name", "الاسم"),
+    "company":  ("Company", "الشركة"),
+    "email":    ("Email", "البريد الإلكتروني"),
+    "phone":    ("Telephone", "الهاتف"),
+    "interest": ("Mainly interested in", "الاهتمام الأساسي"),
+    "choose":   ("Choose a category", "اختر فئة"),
+    "mixed":    ("A complete system", "نظام متكامل"),
+    "site":     ("About the site", "عن الموقع"),
+    "site_ph":  ("What kind of building, roughly how big, and what you need to protect.",
+                 "نوع المبنى، وحجمه تقريباً، وما الذي تريد حمايته."),
+    "send_quote": ("Send quote request", "إرسال طلب العرض"),
+    "sending":  ("Sending&hellip;", "جارٍ الإرسال&hellip;"),
+    "sent":     ("Thank you — your request has been sent. We will reply within one working day.",
+                 "شكراً لك — تم إرسال طلبك. وسنردّ خلال يوم عمل واحد."),
+    "failed":   ("Sorry, your request could not be sent just now. Please call (+965) 1808606 "
+                 "or email sales@azsco.com and we will pick it up straight away.",
+                 "عذراً، تعذّر إرسال طلبك الآن. يُرجى الاتصال على (+965) 1808606 أو مراسلتنا "
+                 "على sales@azsco.com وسنتابع طلبك فوراً."),
+    "err_req":  ("This field is required", "هذا الحقل مطلوب"),
+    "err_mail": ("Enter a valid email address", "أدخل بريداً إلكترونياً صحيحاً"),
+}
+
 
 # ============================================================ templates
 FONTS_EN = ('<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700'
@@ -1305,123 +1714,252 @@ def page(lang, fname, title, desc, body):
     PAGES[(lang, fname)] = (head(lang, fname, title, desc) + header(lang, fname)
                             + f'<main id="main">\n{body}\n</main>' + footer(lang))
 
-# ============================================================ shared blocks
-def service_cards(lang):
-    return "\n".join(
-        f'''      <article class="card reveal" data-delay="{n*80}">
-        <span class="ico">{I[s["icon"]]}</span>
-        <h3>{t(s["name"], lang)}</h3>
-        <p>{t(s["card"], lang)}</p>
-        <a class="more" href="{link(lang, "services.html#" + s["anchor"])}">{t(UI["learn"], lang)} {I["arrow"]}</a>
-      </article>''' for n, s in enumerate(SERVICES))
+# ============================================================ routes
+# Rebuilt from the catalogue so a category or product cannot exist in the data
+# and be missing from the navigation, the sitemap or the URL map. Category and
+# product pages nest under /products/, which path_for() and out_file_for()
+# already handle -- a slug containing "/" simply becomes a deeper directory.
+ROUTES = {
+    "index.html": "",
+    "products.html": "products",
+    "brands.html": "brands",
+    "support.html": "support",
+    "quote.html": "quote",
+    "about.html": "about",
+    "contact.html": "contact",
+    "privacy-policy.html": "privacy-policy",
+}
+for _c in CATEGORIES:
+    ROUTES["cat-" + _c["slug"]] = "products/" + _c["slug"]
+for _p in PRODUCTS:
+    ROUTES["prod-" + _p["slug"]] = "products/" + _p["cat"] + "/" + _p["slug"]
 
+def cat_route(c):
+    return "cat-" + c["slug"]
+
+def prod_route(p):
+    return "prod-" + p["slug"]
+
+# ============================================================ shared blocks
 def chip_list(lang, items):
-    """A wrapping row of pill chips for a plain enumeration -- sectors,
-    values, nationalities, equipment -- where a dozen-plus items would make
-    an icon-tile grid noisy. `items` is a list of (en, ar) pairs."""
+    """A wrapping row of pill chips for a plain enumeration."""
     return "\n".join(
         f'      <span class="chip reveal" data-delay="{min(i*30, 300)}">{t(item, lang)}</span>'
         for i, item in enumerate(items))
 
-def logo_panel(src, alt_pair, lang, cls=""):
-    """A white bordered panel holding a supplied logo-wall image (partners or
-    clients), so it reads as a deliberate panel on any section background
-    rather than a stray white rectangle."""
-    return (f'<div class="logo-panel{(" " + cls) if cls else ""} reveal">'
-            f'<img src="/{src}" alt="{t(alt_pair, lang)}" loading="lazy"></div>')
-
 def tiles(lang, items, cols=3):
     return "\n".join(
         f'      <div class="tile reveal" data-delay="{(i%cols)*80}"><span class="ico">'
-        f'{I["award"] if icon == "award2" else I[icon]}</span><div><h4>{t(title, lang)}</h4>'
+        f'{I[icon]}</span><div><h4>{t(title, lang)}</h4>'
         f'<p>{t(text, lang).replace("{YEARS}", str(YEARS))}</p></div></div>'
         for i, (icon, title, text) in enumerate(items))
+
+def trail(lang, *crumbs):
+    """Breadcrumbs. Every item but the last is (label, route); the last is a
+    bare label for the current page."""
+    out = [f'<li><a href="{link(lang, "index.html")}">{t(UI["home"], lang)}</a></li>']
+    for c in crumbs[:-1]:
+        out.append(f'<li><a href="{link(lang, c[1])}">{c[0]}</a></li>')
+    out.append(f'<li aria-current="page">{crumbs[-1]}</li>')
+    return "\n      ".join(out)
+
+def banner(lang, title, sub, crumbs, lead=None):
+    """Page banner. Narrower and quieter than the services site's, because on
+    a catalogue the products are the page and the banner is just a label."""
+    extra = f'\n    <p class="banner-lead">{lead}</p>' if lead else ""
+    return f'''
+<section class="page-banner">
+  <div class="wrap">
+    <ul class="crumbs">
+      {trail(lang, *crumbs)}
+    </ul>
+    <h1>{title}</h1>
+    <p>{sub}</p>{extra}
+  </div>
+</section>
+'''
+
+def cta(lang, pair=None):
+    """Closing band. Points at the quote page rather than a consultation, since
+    a quote is the action this site is asking for."""
+    title, text = pair or CTA_DEFAULT
+    return f'''
+<section class="cta">
+  <div class="wrap">
+    <div>
+      <h2>{t(title, lang)}</h2>
+      <p>{t(text, lang)}</p>
+    </div>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="{link(lang, "quote.html")}">{t(UI["quote_req"], lang)} {I["arrow"]}</a>
+      <a class="btn btn-outline" href="tel:{PHONE_HREF}" dir="ltr">{PHONE}</a>
+    </div>
+  </div>
+</section>
+'''
+
+def stats_block(lang):
+    cells = []
+    for i, (kind, label) in enumerate(STATS):
+        if kind == "founded":
+            num = f'<span data-count="{FOUNDED}" data-plain>0</span>'
+        elif kind == "years":
+            num = f'<span data-years-since="{FOUNDED}" data-count="{YEARS}">0</span>+'
+        elif kind == "247":
+            num = '<span data-count="24">0</span>/<span data-count="7">0</span>'
+        else:
+            num = f'<span data-count="{len(BRANDS)}">0</span>'
+        cells.append(f'      <div class="stat reveal" data-delay="{i*80}">'
+                     f'<span class="num" dir="ltr">{num}</span>'
+                     f'<span class="label">{t(label, lang)}</span></div>')
+    return ('<section class="section section--tight stats">\n  <div class="wrap">\n'
+            '    <div class="grid grid-4">\n' + "\n".join(cells) +
+            '\n    </div>\n  </div>\n</section>')
+
+def add_button(lang, p, cls="btn btn-primary btn-sm"):
+    """The quote-basket trigger. Everything the basket needs to redisplay the
+    line later travels on the button as data-, so assets/js/main.js needs no
+    copy of the catalogue and no second source of truth for a product name."""
+    cat = CAT_BY_SLUG[p["cat"]]
+    return (f'<button type="button" class="{cls} js-add" '
+            f'data-sku="{p["slug"]}" data-name="{t(p["name"], lang)}" '
+            f'data-kind="{t(p["kind"], lang)}" data-cat="{t(cat["name"], lang)}" '
+            f'data-added="{t(UI["added"], lang)}">'
+            f'{I["plus"]}<span class="js-add-label">{t(UI["add_quote"], lang)}</span></button>')
+
+def product_card(lang, p, n=0):
+    """Catalogue card. Carries its category and brand lines as data- so the
+    catalogue page can filter in the browser without a second data source."""
+    cat = CAT_BY_SLUG[p["cat"]]
+    brands = " ".join(b[0].lower() for b in brands_for(p["cat"]))
+    specs = "".join(
+        f'<li><span>{t(lab, lang)}</span><b dir="ltr">{t(val, lang)}</b></li>'
+        for lab, val in p["specs"][:3])
+    return f'''      <article class="p-card reveal" data-delay="{(n%3)*70}" data-cat="{p["cat"]}" data-brands="{brands}">
+        <a class="p-card-media" href="{link(lang, prod_route(p))}" tabindex="-1" aria-hidden="true">
+          <span class="ico">{I[p["icon"]]}</span>
+        </a>
+        <div class="p-card-body">
+          <p class="p-kind">{t(cat["name"], lang)} &middot; {t(p["kind"], lang)}</p>
+          <h3><a href="{link(lang, prod_route(p))}">{t(p["name"], lang)}</a></h3>
+          <ul class="p-spec-mini">{specs}</ul>
+        </div>
+        <div class="p-card-foot">
+          {add_button(lang, p)}
+          <a class="more" href="{link(lang, prod_route(p))}">{t(UI["view_product"], lang)} {I["arrow"]}</a>
+        </div>
+      </article>'''
+
+def category_card(lang, c, n=0):
+    count = len(products_in(c["slug"]))
+    return f'''      <a class="cat-card reveal" data-delay="{n*80}" href="{link(lang, cat_route(c))}">
+        <span class="ico">{I[c["icon"]]}</span>
+        <h3>{t(c["name"], lang)}</h3>
+        <p>{t(c["tag"], lang)}</p>
+        <span class="cat-count"><b>{count}</b> {t(UI["products"], lang)} {I["arrow"]}</span>
+      </a>'''
+
+def spec_table(lang, p):
+    rows = "\n".join(
+        f'        <tr><th scope="row">{t(lab, lang)}</th><td dir="ltr">{t(val, lang)}</td></tr>'
+        for lab, val in p["specs"])
+    return f'''<table class="spec-table">
+      <caption>{t(UI["full_specs"], lang)} &mdash; {t(p["name"], lang)}</caption>
+      <tbody>
+{rows}
+      </tbody>
+    </table>'''
+
+def section_head(lang, eyebrow, head, lead=None, center=True):
+    cls = "sec-head" + (" sec-head--center" if center else "")
+    lead_html = f'\n    <p>{t(lead, lang)}</p>' if lead else ""
+    return (f'  <div class="{cls} reveal">\n    <p class="eyebrow">{t(eyebrow, lang)}</p>\n'
+            f'    <h2>{t(head, lang)}</h2>{lead_html}\n  </div>')
 
 # ============================================================ pages
 def build_home(lang):
     H = HOME
-    cards = "\n".join(
-        f'          <li><span class="ico">{I[icon]}</span><span><b>{t(title, lang)}</b>'
-        f'<span>{t(desc, lang)}</span></span></li>' for icon, title, desc in H["card_items"])
-    points = "\n".join(f'          <li>{I["check"]} {t(p, lang)}</li>' for p in H["points"])
-    checks = "\n".join(
-        f'          <li><span class="ico">{I["check"]}</span><span><b>{t(a, lang)}</b>'
-        f'<span>{t(b, lang)}</span></span></li>' for a, b in H["about_checks"])
+    picks = "\n".join(
+        f'''          <a class="pick" href="{link(lang, cat_route(c))}">
+            <span class="ico">{I[c["icon"]]}</span>
+            <span class="pick-text"><b>{t(c["name"], lang)}</b><small>{t(c["tag"], lang)}</small></span>
+            {I["arrow"]}
+          </a>''' for c in CATEGORIES)
+    assur = "\n".join(f'        <li>{I["check"]}<span>{t(a, lang)}</span></li>' for a in H["assur"])
+    cats = "\n".join(category_card(lang, c, n) for n, c in enumerate(CATEGORIES))
+    feat = "\n".join(product_card(lang, p, n)
+                     for n, p in enumerate(p for p in PRODUCTS if p["featured"]))
     steps = "\n".join(
-        f'      <div class="step reveal" data-delay="{i*80}"><span class="n">{i+1:02d}</span>'
-        f'<h4>{t(a, lang)}</h4><p>{t(b, lang)}</p></div>'
-        for i, (a, b) in enumerate(H["steps"]))
+        f'''      <li class="step reveal" data-delay="{n*80}">
+        <span class="step-n" dir="ltr">{n+1:02d}</span>
+        <div><h3>{t(title, lang)}</h3><p>{t(text, lang)}</p></div>
+      </li>''' for n, (title, text) in enumerate(H["steps"]))
+    brand_items = "\n".join(
+        f'''      <a class="brand-chip reveal" data-delay="{min(n*50, 300)}" href="{link(lang, "brands.html")}">
+        <b>{name}</b><small>{t(tagline, lang)}</small></a>'''
+        for n, (name, tagline, _cats) in enumerate(BRANDS))
 
     body = f'''
-<section class="hero">
+<section class="hero hero--catalogue">
   <div class="wrap">
-    <div class="hero-grid">
-      <div>
-        <span class="hero-badge">{I["shield-check"]} {t(H["badge"], lang)}</span>
-        <h1>{t(H["h1a"], lang)}<em>{t(H["h1b"], lang)}</em></h1>
-        <p class="lead">{t(H["lead"], lang)}</p>
-        <div class="btn-row">
-          <a class="btn btn-primary" href="{link(lang, "contact.html")}">{t(UI["consult"], lang)} {I["arrow"]}</a>
-          <a class="btn btn-outline" href="{link(lang, "services.html")}">{t(UI["explore"], lang)}</a>
-        </div>
-        <ul class="hero-points">
-{points}
-        </ul>
+    <div class="hero-text">
+      <p class="eyebrow">{I["shield"]}{t(H["eyebrow"], lang)}</p>
+      <h1>{t(H["h1"], lang)}</h1>
+      <p class="lead">{t(H["lead"], lang)}</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="{link(lang, "products.html")}">{t(UI["browse"], lang)} {I["arrow"]}</a>
+        <a class="btn btn-outline" href="{link(lang, "quote.html")}">{t(UI["quote_req"], lang)}</a>
       </div>
-
-      <aside class="hero-card reveal" data-delay="120">
-        <h3>{t(H["card_h"], lang)}</h3>
-        <p>{t(H["card_p"], lang)}</p>
-        <ul class="hero-card-list">
-{cards}
-        </ul>
-      </aside>
+      <ul class="assur">
+{assur}
+      </ul>
     </div>
+
+    <aside class="hero-pick reveal" aria-label="{t(H["pick_head"], lang)}">
+      <div class="hero-pick-head">
+        <h2>{t(H["pick_head"], lang)}</h2>
+        <p>{t(H["pick_sub"], lang)}</p>
+      </div>
+      <div class="pick-list">
+{picks}
+      </div>
+    </aside>
   </div>
 </section>
 
-<section class="section">
+<section class="section" id="categories">
   <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(H["svc_eyebrow"], lang)}</p>
-      <h2>{t(H["svc_h2"], lang)}</h2>
-      <p>{t(H["svc_lead"], lang)}</p>
-    </div>
-    <div class="grid grid-3">
-{service_cards(lang)}
+{section_head(lang, H["cat_eyebrow"], H["cat_head"], H["cat_lead"])}
+    <div class="grid grid-4 cat-grid">
+{cats}
     </div>
   </div>
 </section>
 
 <section class="section section--alt">
   <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(H["sec_eyebrow"], lang)}</p>
-      <h2>{t(H["sec_h2"], lang)}</h2>
-      <p>{t(H["sec_lead"], lang)}</p>
+{section_head(lang, H["feat_eyebrow"], H["feat_head"], H["feat_lead"])}
+    <div class="grid grid-3 p-grid">
+{feat}
     </div>
-    {logo_panel("assets/img/photos/service-sectors.png", SECTORS_ALT, lang)}
+    <p class="center-cta"><a class="btn btn-outline" href="{link(lang, "products.html")}">{t(UI["all_products"], lang)} {I["arrow"]}</a></p>
+  </div>
+</section>
+
+<section class="section section--dark">
+  <div class="wrap">
+{section_head(lang, H["how_eyebrow"], H["how_head"], H["how_lead"])}
+    <ol class="steps">
+{steps}
+    </ol>
   </div>
 </section>
 
 <section class="section">
   <div class="wrap">
-    <div class="split">
-      <div class="split-visual reveal">
-        <div class="visual-frame">{HERO_SVG}</div>
-        <div class="visual-badge"><b dir="ltr">24/7</b><span>{t(("Always On Duty", "على أهبة الاستعداد"), lang)}</span></div>
-      </div>
-      <div class="reveal" data-delay="120">
-        <p class="eyebrow">{t(H["about_eyebrow"], lang)}</p>
-        <h2>{t(H["about_h2"], lang)}</h2>
-        <p class="lead">{t(H["about_lead"], lang)}</p>
-        <ul class="check-list">
-{checks}
-        </ul>
-        <div class="btn-row">
-          <a class="btn btn-dark" href="{link(lang, "about.html")}">{t(UI["more_about"], lang)} {I["arrow"]}</a>
-        </div>
-      </div>
+{section_head(lang, H["brand_eyebrow"], H["brand_head"], H["brand_lead"])}
+    <div class="brand-row">
+{brand_items}
     </div>
   </div>
 </section>
@@ -1430,40 +1968,9 @@ def build_home(lang):
 
 <section class="section section--alt">
   <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(H["why_eyebrow"], lang)}</p>
-      <h2>{t(H["why_h2"], lang)}</h2>
-      <p>{t(H["why_lead"], lang)}</p>
-    </div>
-    <div class="grid grid-3">
-{tiles(lang, H["why_tiles"])}
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(H["proc_eyebrow"], lang)}</p>
-      <h2>{t(H["proc_h2"], lang)}</h2>
-      <p>{t(H["proc_lead"], lang)}</p>
-    </div>
-    <div class="steps">
-{steps}
-    </div>
-  </div>
-</section>
-
-<section class="section section--alt">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(H["part_eyebrow"], lang)}</p>
-      <h2>{t(H["part_h2"], lang)}</h2>
-      <p>{t(H["part_lead"], lang)}</p>
-    </div>
-    {logo_panel("assets/img/photos/partners-logos.png", PARTNERS_ALT, lang)}
-    <div class="center" style="margin-top:44px">
-      <a class="btn btn-dark" href="{link(lang, "partners.html")}">{t(H["part_btn"], lang)} {I["arrow"]}</a>
+{section_head(lang, H["sector_eyebrow"], H["sector_head"], H["sector_lead"])}
+    <div class="chips">
+{chip_list(lang, SECTORS)}
     </div>
   </div>
 </section>
@@ -1472,176 +1979,437 @@ def build_home(lang):
 '''
     page(lang, "index.html", t(H["title"], lang), t(H["desc"], lang), body)
 
-def build_about(lang):
-    A = ABOUT
-    story = "\n        ".join(
-        ('<p class="lead">' if i == 0 else '<p>') + t(p, lang) + '</p>'
-        for i, p in enumerate(A["story"]))
-    mvv = "\n".join(
-        f'      <article class="card reveal" data-delay="{i*80}"><span class="ico">{I[icon]}</span>'
-        f'<h3>{t(title, lang)}</h3><p>{t(text, lang)}</p></article>'
-        for i, (icon, title, text) in enumerate(A["mvv"]))
-    ceo = "\n      ".join(f'<p>{t(p, lang)}</p>' for p in A["ceo"])
-    values_html = chip_list(lang, VALUES)
-    nat_html = chip_list(lang, NATIONALITIES)
-    equip_html = chip_list(lang, EQUIPMENT)
-    training_html = "\n".join(
-        f'      <div class="tile reveal" data-delay="{(i%3)*80}"><span class="ico">{I[icon]}</span>'
-        f'<div><h4>{t(title, lang)}</h4></div></div>'
-        for i, (icon, title) in enumerate(TRAINING))
-    uniform_html = "\n".join(
-        f'      <div class="uniform reveal" data-delay="{i*70}">'
-        f'<div class="uniform-photos">'
-        f'<img src="/assets/img/photos/uniforms/{key}-front.jpg" alt="{t(title, lang)}" loading="lazy">'
-        f'<img src="/assets/img/photos/uniforms/{key}-back.jpg" alt="{t(title, lang)}" loading="lazy">'
-        f'</div><h4>{t(title, lang)}</h4></div>'
-        for i, (key, title) in enumerate(UNIFORMS))
-    cert_items_html = "\n      ".join(f'<p>{t(c, lang)}</p>' for c in CERTIFICATIONS)
-    faqs = []
-    for i, (q, a) in enumerate(A["faq"]):
-        ans = t(a, lang).replace("{ADDR}", t(ADDRESS_1L, lang)).replace("{PHONE}", PHONE)
-        faqs.append(f'''      <div class="acc{" is-open" if i == 0 else ""} reveal">
-        <button class="acc-btn" type="button">{t(q, lang)}<span class="pm">{I["plus"]}</span></button>
-        <div class="acc-panel"><div class="inner">{ans}</div></div>
-      </div>''')
 
-    FAQ_HTML = "\n".join(faqs)
-    body = banner(lang, t(A["banner_h"], lang), t(A["banner_p"], lang), t(A["crumb"], lang)) + f'''
-<section class="section">
-  <div class="wrap">
-    <div class="split">
-      <div class="split-visual reveal">
-        <div class="visual-frame">{ABOUT_SVG}</div>
-        <div class="visual-badge"><b dir="ltr">{t(A["badge"][0], lang)}</b><span>{t(A["badge"][1], lang)}</span></div>
+def build_catalogue(lang):
+    C = CATALOGUE
+    cat_filters = "\n".join(
+        f'''        <label class="f-check"><input type="checkbox" name="cat" value="{c["slug"]}">
+          <span>{t(c["name"], lang)}</span><b>{len(products_in(c["slug"]))}</b></label>'''
+        for c in CATEGORIES)
+    brand_filters = "\n".join(
+        f'''        <label class="f-check"><input type="checkbox" name="brand" value="{name.lower()}">
+          <span>{name}</span><b>{sum(1 for p in PRODUCTS if p["cat"] in cats)}</b></label>'''
+        for name, _tag, cats in BRANDS)
+    cards = "\n".join(product_card(lang, p, n) for n, p in enumerate(PRODUCTS))
+
+    body = f'''
+{banner(lang, t(C["h1"], lang), t(C["sub"], lang), [t(UI["all_products"], lang)])}
+
+<section class="section catalogue">
+  <div class="wrap catalogue-wrap">
+
+    <form class="filters" id="filters" aria-label="{t(UI["filters"], lang)}">
+      <div class="filters-head">
+        <h2>{t(UI["filters"], lang)}</h2>
+        <button type="button" class="link-btn js-clear">{t(UI["clear_all"], lang)}</button>
       </div>
-      <div class="reveal" data-delay="120">
-        <p class="eyebrow">{t(A["story_eyebrow"], lang)}</p>
-        <h2>{t(A["story_h2"], lang)}</h2>
-        {story}
-        <div class="btn-row" style="margin-top:26px">
-          <a class="btn btn-dark" href="{link(lang, "contact.html")}">{t(UI["talk"], lang)} {I["arrow"]}</a>
+      <fieldset>
+        <legend>{t(UI["category"], lang)}</legend>
+{cat_filters}
+      </fieldset>
+      <fieldset>
+        <legend>{t(UI["brand_lines"], lang)}</legend>
+{brand_filters}
+      </fieldset>
+      <p class="filters-note">{t(UI["quote_note"], lang)}</p>
+    </form>
+
+    <div class="catalogue-main">
+      <p class="result-count" role="status">
+        {t(UI["showing"], lang)} <b class="js-count" dir="ltr">{len(PRODUCTS)}</b>
+        {t(UI["of"], lang)} <span dir="ltr">{len(PRODUCTS)}</span> {t(UI["products"], lang)}
+      </p>
+      <div class="grid grid-3 p-grid js-results">
+{cards}
+      </div>
+      <div class="empty js-empty" hidden>
+        <span class="ico">{I["grid"]}</span>
+        <h3>{t(UI["no_match"], lang)}</h3>
+        <p>{t(UI["no_match_cta"], lang)}</p>
+        <div class="btn-row">
+          <button type="button" class="btn btn-outline js-clear">{t(UI["clear_all"], lang)}</button>
+          <a class="btn btn-primary" href="{link(lang, "contact.html")}">{t(UI["talk"], lang)}</a>
         </div>
       </div>
     </div>
+
+  </div>
+</section>
+
+{cta(lang)}
+'''
+    page(lang, "products.html", t(C["title"], lang), t(C["desc"], lang), body)
+
+
+def build_category(lang, c):
+    items = products_in(c["slug"])
+    cards = "\n".join(product_card(lang, p, n) for n, p in enumerate(items))
+    apps = "\n".join(f'        <li>{I["check"]}<span>{t(a, lang)}</span></li>' for a in c["apps"])
+    lines = "\n".join(
+        f'<li><b>{name}</b> &mdash; {t(tag, lang)}</li>' for name, tag, _c in brands_for(c["slug"]))
+    others = "\n".join(category_card(lang, o, n)
+                       for n, o in enumerate(x for x in CATEGORIES if x["slug"] != c["slug"]))
+    title = (f'{t(c["name"], lang)} &mdash; ' +
+             ("Security Systems in Kuwait | AZSCO" if lang == "en" else "أنظمة أمنية في الكويت | أزسكو"))
+
+    body = f'''
+{banner(lang, t(c["name"], lang), t(c["tag"], lang),
+        [(t(UI["all_products"], lang), "products.html"), t(c["name"], lang)])}
+
+<section class="section">
+  <div class="wrap cat-intro">
+    <div class="cat-intro-text reveal">
+      <p class="eyebrow">{t(UI["category"], lang)}</p>
+      <h2>{t(c["name"], lang)}</h2>
+      <p>{t(c["lead"], lang)}</p>
+      <ul class="check-list">
+{apps}
+      </ul>
+    </div>
+    <aside class="cat-intro-side reveal">
+      <h3>{t(UI["supplied_by"], lang)}</h3>
+      <ul class="line-list">
+        {lines}
+      </ul>
+      <a class="btn btn-outline btn-sm" href="{link(lang, "brands.html")}">{t(UI["all_brands"], lang)} {I["arrow"]}</a>
+    </aside>
+  </div>
+</section>
+
+<section class="section section--alt">
+  <div class="wrap">
+    <div class="sec-head sec-head--center reveal">
+      <p class="eyebrow">{t(UI["category"], lang)}</p>
+      <h2>{len(items)} {t(UI["products"], lang)} {t(UI["in_category"], lang)}</h2>
+    </div>
+    <div class="grid grid-3 p-grid">
+{cards}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head sec-head--center reveal">
+      <h2>{t(UI["explore_cat"], lang)}</h2>
+    </div>
+    <div class="grid grid-3 cat-grid">
+{others}
+    </div>
+  </div>
+</section>
+
+{cta(lang)}
+'''
+    page(lang, cat_route(c), title, t(c["lead"], lang)[:300], body)
+
+
+def build_product(lang, p):
+    c = CAT_BY_SLUG[p["cat"]]
+    highs = "\n".join(f'        <li>{I["check"]}<span>{t(h, lang)}</span></li>' for h in p["highlights"])
+    key = "\n".join(
+        f'          <li><span>{t(lab, lang)}</span><b dir="ltr">{t(val, lang)}</b></li>'
+        for lab, val in p["specs"][:4])
+    apps = "\n".join(f'        <li>{I["check"]}<span>{t(a, lang)}</span></li>' for a in c["apps"])
+    lines = ", ".join(b[0] for b in brands_for(p["cat"]))
+    related = [x for x in products_in(p["cat"]) if x["slug"] != p["slug"]][:3]
+    rel_cards = "\n".join(product_card(lang, r, n) for n, r in enumerate(related))
+    title = f'{t(p["name"], lang)} &mdash; {t(c["name"], lang)} | AZSCO'
+
+    body = f'''
+<section class="p-detail">
+  <div class="wrap">
+    <ul class="crumbs">
+      {trail(lang, (t(UI["all_products"], lang), "products.html"),
+             (t(c["name"], lang), cat_route(c)), t(p["name"], lang))}
+    </ul>
+
+    <div class="p-detail-grid">
+      <div class="p-visual reveal">
+        <span class="ico">{I[p["icon"]]}</span>
+        <p class="p-visual-cap">{t(UI["installed"], lang)}</p>
+      </div>
+
+      <div class="p-buy reveal">
+        <p class="p-kind">{t(c["name"], lang)} &middot; {t(p["kind"], lang)}</p>
+        <h1>{t(p["name"], lang)}</h1>
+        <p class="lead">{t(p["blurb"], lang)}</p>
+
+        <ul class="p-spec-key">
+          <li class="p-spec-key-head">{t(UI["key_specs"], lang)}</li>
+{key}
+        </ul>
+
+        <div class="p-buy-actions">
+          {add_button(lang, p, "btn btn-primary js-add")}
+          <a class="btn btn-outline" href="{link(lang, "quote.html")}">{t(UI["view_quote"], lang)}</a>
+        </div>
+        <p class="p-buy-note">{I["file"]}<span>{t(UI["quote_note"], lang)}</span></p>
+        <p class="p-buy-lines"><b>{t(UI["supplied_by"], lang)}:</b> <span dir="ltr">{lines}</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap p-info">
+    <div class="p-info-main reveal">
+      {spec_table(lang, p)}
+    </div>
+    <aside class="p-info-side">
+      <div class="side-block reveal">
+        <h3>{t(UI["highlights"], lang)}</h3>
+        <ul class="check-list">
+{highs}
+        </ul>
+      </div>
+      <div class="side-block reveal">
+        <h3>{t(UI["typical_use"], lang)}</h3>
+        <ul class="check-list">
+{apps}
+        </ul>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="section section--alt">
+  <div class="wrap">
+    <div class="sec-head sec-head--center reveal">
+      <p class="eyebrow">{t(UI["part_of"], lang)} {t(c["name"], lang)}</p>
+      <h2>{t(UI["related"], lang)}</h2>
+    </div>
+    <div class="grid grid-3 p-grid">
+{rel_cards}
+    </div>
+  </div>
+</section>
+
+{cta(lang)}
+'''
+    page(lang, prod_route(p), title, t(p["blurb"], lang)[:300], body)
+
+
+
+def build_brands(lang):
+    B = BRANDS_PAGE
+    cards = []
+    for n, (name, tag, cats) in enumerate(BRANDS):
+        cat_links = " ".join(
+            f'<a class="tag" href="{link(lang, cat_route(CAT_BY_SLUG[s]))}">{t(CAT_BY_SLUG[s]["name"], lang)}</a>'
+            for s in cats)
+        count = sum(1 for p in PRODUCTS if p["cat"] in cats)
+        cards.append(f'''      <article class="brand-card reveal" data-delay="{(n%4)*60}">
+        <h3 dir="ltr">{name}</h3>
+        <p>{t(tag, lang)}</p>
+        <div class="brand-tags">{cat_links}</div>
+        <span class="brand-count"><b>{count}</b> {t(UI["products"], lang)}</span>
+      </article>''')
+    body = f'''
+{banner(lang, t(B["h1"], lang), t(B["sub"], lang), [t(UI["all_brands"], lang)])}
+
+<section class="section">
+  <div class="wrap narrow reveal">
+    <h2>{t(B["lead_head"], lang)}</h2>
+    <p class="rich">{t(B["lead"], lang)}</p>
+  </div>
+</section>
+
+<section class="section section--alt">
+  <div class="wrap">
+    <div class="grid grid-4 brand-grid">
+{chr(10).join(cards)}
+    </div>
+  </div>
+</section>
+
+{cta(lang)}
+'''
+    page(lang, "brands.html", t(B["title"], lang), t(B["desc"], lang), body)
+
+
+def quote_labels(lang):
+    """aria-labels for the basket rows, as JSON for main.js to read off the
+    list element -- so the Arabic page's controls announce in Arabic."""
+    return html.escape(json.dumps({
+        "qty": t(("Quantity", "الكمية"), lang),
+        "more": t(("Increase quantity", "زيادة الكمية"), lang),
+        "less": t(("Decrease quantity", "إنقاص الكمية"), lang),
+        "remove": t(UI["remove"], lang),
+    }, ensure_ascii=False), quote=True)
+
+
+def build_quote(lang):
+    Q = QUOTE
+    how = "\n".join(
+        f'''      <li class="step reveal" data-delay="{n*80}">
+        <span class="step-n" dir="ltr">{n+1:02d}</span>
+        <div><h3>{t(title, lang)}</h3><p>{t(text, lang)}</p></div>
+      </li>''' for n, (title, text) in enumerate(Q["how"]))
+    cat_opts = "\n".join(
+        f'            <option value="{t(c["name"], lang)}">{t(c["name"], lang)}</option>'
+        for c in CATEGORIES)
+
+    body = f'''
+{banner(lang, t(Q["h1"], lang), t(Q["sub"], lang), [t(UI["your_quote"], lang)])}
+
+<section class="section">
+  <div class="wrap quote-wrap">
+
+    <div class="quote-main">
+      <div class="quote-list-head">
+        <h2>{t(UI["your_quote"], lang)}</h2>
+        <button type="button" class="link-btn js-clear-quote" hidden>{t(UI["clear_all"], lang)}</button>
+      </div>
+
+      <!-- Filled by assets/js/main.js from the basket in localStorage. The
+           empty state is what the page ships with, so it is correct with
+           JavaScript disabled rather than showing an empty table. -->
+      <ul class="quote-list js-quote-list" hidden
+          data-labels='{quote_labels(lang)}'></ul>
+
+      <div class="empty js-quote-empty">
+        <span class="ico">{I["file"]}</span>
+        <h3>{t(UI["quote_empty"], lang)}</h3>
+        <p>{t(UI["quote_empty_t"], lang)}</p>
+        <a class="btn btn-primary" href="{link(lang, "products.html")}">{t(UI["browse"], lang)} {I["arrow"]}</a>
+      </div>
+
+      <form class="form quote-form" id="quote-form" novalidate
+            data-endpoint="{CONTACT_ENDPOINT}" data-lang="{lang}"
+            data-sending="{t(FORM["sending"], lang)}"
+            data-sent="{t(FORM["sent"], lang)}"
+            data-failed="{t(FORM["failed"], lang)}">
+        <h2>{t(Q["form_head"], lang)}</h2>
+        <!-- The basket is serialised into this field on submit. -->
+        <input type="hidden" name="items" class="js-quote-items">
+        <div class="f-row">
+          <div class="field">
+            <label for="q-name">{t(FORM["name"], lang)}</label>
+            <input id="q-name" name="name" type="text" autocomplete="name" required>
+            <p class="err" data-for="q-name"></p>
+          </div>
+          <div class="field">
+            <label for="q-company">{t(FORM["company"], lang)}</label>
+            <input id="q-company" name="company" type="text" autocomplete="organization">
+            <p class="err" data-for="q-company"></p>
+          </div>
+        </div>
+        <div class="f-row">
+          <div class="field">
+            <label for="q-email">{t(FORM["email"], lang)}</label>
+            <input id="q-email" name="email" type="email" autocomplete="email" dir="ltr" required>
+            <p class="err" data-for="q-email"></p>
+          </div>
+          <div class="field">
+            <label for="q-phone">{t(FORM["phone"], lang)}</label>
+            <input id="q-phone" name="phone" type="tel" autocomplete="tel" dir="ltr" required>
+            <p class="err" data-for="q-phone"></p>
+          </div>
+        </div>
+        <div class="field">
+          <label for="q-interest">{t(FORM["interest"], lang)}</label>
+          <select id="q-interest" name="interest">
+            <option value="">{t(FORM["choose"], lang)}</option>
+{cat_opts}
+            <option value="{t(FORM["mixed"], lang)}">{t(FORM["mixed"], lang)}</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="q-msg">{t(FORM["site"], lang)}</label>
+          <textarea id="q-msg" name="message" rows="5" required placeholder="{t(FORM["site_ph"], lang)}"></textarea>
+          <p class="err" data-for="q-msg"></p>
+        </div>
+        <!-- Honeypot: a real visitor never sees or fills this. -->
+        <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button class="btn btn-primary" type="submit">{t(FORM["send_quote"], lang)} {I["arrow"]}</button>
+        <p class="form-note">{t(Q["form_note"], lang)}</p>
+        <p class="form-msg" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+
+    <aside class="quote-side">
+      <div class="side-block reveal">
+        <h3>{t(UI["quote_req"], lang)}</h3>
+        <ol class="steps steps--compact">
+{how}
+        </ol>
+      </div>
+      <div class="side-block side-block--dark reveal">
+        <h3>{t(UI["call_us"], lang)}</h3>
+        <p><a href="tel:{PHONE_HREF}" dir="ltr">{PHONE}</a></p>
+        <p><a href="mailto:{EMAIL_SALES}" dir="ltr">{EMAIL_SALES}</a></p>
+      </div>
+    </aside>
+
+  </div>
+</section>
+'''
+    page(lang, "quote.html", t(Q["title"], lang), t(Q["desc"], lang), body)
+
+
+def build_support(lang):
+    S = SUPPORT
+    blocks = "\n".join(
+        f'''      <article class="card reveal" data-delay="{(n%3)*70}">
+        <span class="ico">{I[icon]}</span>
+        <h3>{t(title, lang)}</h3>
+        <p>{t(text, lang)}</p>
+      </article>''' for n, (icon, title, text) in enumerate(S["blocks"]))
+    body = f'''
+{banner(lang, t(S["h1"], lang), t(S["sub"], lang), [t(UI["installed"], lang)])}
+
+<section class="section">
+  <div class="wrap">
+{section_head(lang, S["lead_eyebrow"], S["lead_head"])}
+    <div class="grid grid-3">
+{blocks}
+    </div>
+  </div>
+</section>
+
+{stats_block(lang)}
+
+{cta(lang)}
+'''
+    page(lang, "support.html", t(S["title"], lang), t(S["desc"], lang), body)
+
+
+def build_about(lang):
+    A = ABOUT
+    story = "\n".join(f'    <p>{t(par, lang)}</p>' for par in A["story"])
+    ovm = "\n".join(
+        f'''      <article class="card reveal" data-delay="{n*80}">
+        <span class="ico">{I[icon]}</span>
+        <h3>{t(title, lang)}</h3>
+        <p>{t(text, lang)}</p>
+      </article>''' for n, (icon, title, text) in enumerate(A["ovm"]))
+    why = tiles(lang, A["why"], cols=2)
+    faq = "\n".join(
+        f'''      <div class="acc reveal" data-delay="{n*60}">
+        <button class="acc-btn" type="button" aria-expanded="false" aria-controls="faq-{n}">
+          <span>{t(q, lang)}</span>{I["plus"]}
+        </button>
+        <div class="acc-panel" id="faq-{n}"><p>{t(a, lang)}</p></div>
+      </div>''' for n, (q, a) in enumerate(A["faq"]))
+
+    body = f'''
+{banner(lang, t(A["h1"], lang), t(A["sub"], lang), [t(A["h1"], lang)])}
+
+<section class="section">
+  <div class="wrap narrow reveal">
+    <p class="eyebrow">{t(A["story_eyebrow"], lang)}</p>
+    <h2>{t(A["story_head"], lang)}</h2>
+    <div class="rich">
+{story}
+    </div>
   </div>
 </section>
 
 <section class="section section--alt">
   <div class="wrap">
     <div class="grid grid-3">
-{mvv}
-    </div>
-    <div class="sec-head center reveal" style="margin-top:56px">
-      <p class="eyebrow">{t(A["values_eyebrow"], lang)}</p>
-      <h2>{t(A["values_h2"], lang)}</h2>
-    </div>
-    <div class="chips center">
-{values_html}
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(A["commit_eyebrow"], lang)}</p>
-      <h2>{t(A["commit_h2"], lang)}</h2>
-      <p>{t(A["commit_lead"], lang)}</p>
-    </div>
-    <div class="grid grid-2">
-{tiles(lang, A["commit_tiles"], cols=2)}
-    </div>
-  </div>
-</section>
-
-<section class="section section--alt">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(A["nat_eyebrow"], lang)}</p>
-      <h2>{t(A["nat_h2"], lang)}</h2>
-      <p>{t(A["nat_lead"], lang)}</p>
-    </div>
-    <div class="chips center">
-{nat_html}
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(A["train_eyebrow"], lang)}</p>
-      <h2>{t(A["train_h2"], lang)}</h2>
-      <p>{t(A["train_lead"], lang)}</p>
-    </div>
-    <div class="grid grid-3">
-{training_html}
-    </div>
-  </div>
-</section>
-
-<section class="section section--alt">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(A["equip_eyebrow"], lang)}</p>
-      <h2>{t(A["equip_h2"], lang)}</h2>
-      <p>{t(A["equip_lead"], lang)}</p>
-    </div>
-    <div class="chips center">
-{equip_html}
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(A["uniform_eyebrow"], lang)}</p>
-      <h2>{t(A["uniform_h2"], lang)}</h2>
-      <p>{t(A["uniform_lead"], lang)}</p>
-    </div>
-    <div class="uniform-gallery">
-{uniform_html}
-    </div>
-  </div>
-</section>
-
-<section class="section section--alt">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(A["cert_eyebrow"], lang)}</p>
-      <h2>{t(A["cert_h2"], lang)}</h2>
-      {cert_items_html}
-    </div>
-    {logo_panel("assets/img/photos/certifications.jpg", CERT_ALT, lang)}
-  </div>
-</section>
-
-<section class="section section--dark">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(A["ceo_eyebrow"], lang)}</p>
-      <h2>{t(A["ceo_h2"], lang)}</h2>
-    </div>
-    <blockquote class="quote reveal">
-      {ceo}
-      <p class="quote-line">{t(A["ceo_line"], lang)}</p>
-      <p>{t(A["ceo_thanks"], lang)}</p>
-      <footer class="quote-by">{t(A["ceo_by"], lang)}</footer>
-    </blockquote>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(A["clients_eyebrow"], lang)}</p>
-      <h2>{t(A["clients_h2"], lang)}</h2>
-      <p>{t(A["clients_lead"], lang)}</p>
-    </div>
-    {logo_panel("assets/img/photos/clients-logos.jpg", CLIENTS_ALT, lang)}
-    <div class="center" style="margin-top:44px">
-      <a class="btn btn-dark" href="{link(lang, "clients.html")}">{t(A["clients_btn"], lang)} {I["arrow"]}</a>
+{ovm}
     </div>
   </div>
 </section>
@@ -1650,12 +2418,18 @@ def build_about(lang):
 
 <section class="section">
   <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(A["faq_eyebrow"], lang)}</p>
-      <h2>{t(A["faq_h2"], lang)}</h2>
+{section_head(lang, A["why_eyebrow"], A["why_head"])}
+    <div class="grid grid-2 tile-grid">
+{why}
     </div>
-    <div style="max-width:840px;margin:0 auto">
-{FAQ_HTML}
+  </div>
+</section>
+
+<section class="section section--alt">
+  <div class="wrap narrow">
+{section_head(lang, A["faq_eyebrow"], A["faq_head"])}
+    <div class="acc-list">
+{faq}
     </div>
   </div>
 </section>
@@ -1664,313 +2438,88 @@ def build_about(lang):
 '''
     page(lang, "about.html", t(A["title"], lang), t(A["desc"], lang), body)
 
-def build_services(lang):
-    S = SERVICES_PAGE
-    sections = []
-    for i, s in enumerate(SERVICES):
-        alt = " section--alt" if i % 2 else ""
-        flip = " split--flip" if i % 2 else ""
-        pts = "\n".join(
-            f'          <li><span class="ico">{I["check"]}</span><span>{t(p, lang)}</span></li>'
-            for p in s["points"])
-        sections.append(f'''
-<section class="section{alt}" id="{s["anchor"]}">
-  <div class="wrap">
-    <div class="split{flip}">
-      <div class="reveal">
-        <p class="eyebrow">{t(S["service_label"], lang)} {i+1:02d}</p>
-        <h2>{t(s["name"], lang)}</h2>
-        <p class="lead">{t(s["intro"], lang)}</p>
-        <ul class="check-list">
-{pts}
-        </ul>
-        <div class="btn-row">
-          <a class="btn btn-dark" href="{link(lang, "contact.html")}?service={s["anchor"]}">{t(UI["req_quote"], lang)} {I["arrow"]}</a>
-        </div>
-      </div>
-      <div class="split-visual reveal" data-delay="120">
-        <div class="visual-frame"><div style="color:#fff;width:160px;max-width:60%">{I[s["icon"]]}</div></div>
-      </div>
-    </div>
-  </div>
-</section>''')
-
-    body = banner(lang, t(S["banner_h"], lang), t(S["banner_p"], lang), t(S["crumb"], lang)) + f'''
-<section class="section">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(S["over_eyebrow"], lang)}</p>
-      <h2>{t(S["over_h2"], lang)}</h2>
-      <p>{t(S["over_lead"], lang)}</p>
-    </div>
-    <div class="grid grid-3">
-{service_cards(lang)}
-    </div>
-  </div>
-</section>
-{"".join(sections)}
-
-<section class="section section--alt">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(S["people_eyebrow"], lang)}</p>
-      <h2>{t(S["people_h2"], lang)}</h2>
-      <p>{t(S["people_lead"], lang)}</p>
-    </div>
-    <div class="grid grid-3">
-{tiles(lang, S["people_tiles"])}
-    </div>
-  </div>
-</section>
-
-{cta(lang, S["cta"])}
-'''
-    page(lang, "services.html", t(S["title"], lang), t(S["desc"], lang), body)
-
-def build_clients(lang):
-    CL = CLIENTS_PAGE
-    body = banner(lang, t(CL["banner_h"], lang), t(CL["banner_p"], lang), t(CL["crumb"], lang)) + f'''
-<section class="section">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(CL["eyebrow"], lang)}</p>
-      <h2>{t(CL["h2"], lang)}</h2>
-      <p>{t(CL["lead"], lang)}</p>
-    </div>
-    {logo_panel("assets/img/photos/clients-logos.jpg", CLIENTS_ALT, lang)}
-  </div>
-</section>
-
-<section class="section section--alt">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(CL["list_eyebrow"], lang)}</p>
-      <h2>{t(CL["list_h2"], lang)}</h2>
-    </div>
-    <div class="chips center">
-{chip_list(lang, CLIENTS)}
-    </div>
-  </div>
-</section>
-
-{cta(lang, CL["cta"])}
-'''
-    page(lang, "clients.html", t(CL["title"], lang), t(CL["desc"], lang), body)
-
-def build_partners(lang):
-    P = PARTNERS_PAGE
-    join_p = (t(P["join_p"], lang)
-              .replace("{EMAIL}", f'<a href="mailto:{EMAIL}" dir="ltr">{EMAIL}</a>')
-              .replace("{PHONE}", f'<span dir="ltr">{PHONE}</span>'))
-    body = banner(lang, t(P["banner_h"], lang), t(P["banner_p"], lang), t(P["crumb"], lang)) + f'''
-<section class="section">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(P["eyebrow"], lang)}</p>
-      <h2>{t(P["h2"], lang)}</h2>
-      <p>{t(P["lead"], lang)}</p>
-    </div>
-    {logo_panel("assets/img/photos/partners-logos.png", PARTNERS_ALT, lang)}
-  </div>
-</section>
-
-<section class="section section--alt">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <p class="eyebrow">{t(P["why_eyebrow"], lang)}</p>
-      <h2>{t(P["why_h2"], lang)}</h2>
-    </div>
-    <div class="grid grid-3">
-{tiles(lang, P["tiles"])}
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <div class="split">
-      <div class="reveal">
-        <p class="eyebrow">{t(P["join_eyebrow"], lang)}</p>
-        <h2>{t(P["join_h2"], lang)}</h2>
-        <p class="lead">{t(P["join_lead"], lang)}</p>
-        <p>{join_p}</p>
-        <div class="btn-row">
-          <a class="btn btn-dark" href="{link(lang, "contact.html")}">{t(P["join_btn"], lang)} {I["arrow"]}</a>
-        </div>
-      </div>
-      <div class="split-visual reveal" data-delay="120">
-        <div class="visual-frame"><div style="color:#fff;width:160px;max-width:55%">{I["link"]}</div></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-{cta(lang)}
-'''
-    page(lang, "partners.html", t(P["title"], lang), t(P["desc"], lang), body)
 
 def build_contact(lang):
     C = CONTACT
-    F = C["fields"]
-    card_values = [
-        f'<p>{t(ADDRESS_BR, lang)}</p>',
-        f'<a href="tel:{PHONE_HREF}" dir="ltr">{PHONE}</a>',
-        (f'<a href="mailto:{EMAIL}" dir="ltr">{EMAIL}</a>'
-         f'<small class="info-note">{t(FOOTER["email_general"], lang)}</small>'
-         f'<a href="mailto:{EMAIL_SALES}" dir="ltr">{EMAIL_SALES}</a>'
-         f'<small class="info-note">{t(FOOTER["email_sales"], lang)}</small>'),
-    ]
-    cards = []
-    for i, ((icon, title, sub), value) in enumerate(zip(C["cards"], card_values)):
-        extra = (f'<p style="color:var(--muted);font-size:.86rem">{t(sub, lang)}</p>') if sub else ""
-        cards.append(f'''      <div class="info-card reveal" data-delay="{i*80}">
-        <span class="ico">{I[icon]}</span>
-        <div><h4>{t(title, lang)}</h4>{value}{extra}</div>
-      </div>''')
-    options = "\n".join(f'              <option value="{v}">{t(o, lang)}</option>' for v, o in C["options"])
-    note = (t(F["note"], lang)
-            .replace("{PRIVACY}", f'<a href="{link(lang, "privacy-policy.html")}">{t(FOOTER["privacy"], lang)}</a>')
-            .replace("{PHONE}", f'<span dir="ltr">{PHONE}</span>'))
-    # Lets a "Request a Quote" link on the services page (contact.html?service=<anchor>)
-    # land here with the right inquiry type pre-selected and the message field
-    # pre-filled, instead of the visitor arriving at a blank general enquiry.
-    service_names = json.dumps(
-        {s["anchor"]: html.unescape(t(s["name"], lang)) for s in SERVICES},
-        ensure_ascii=False)
+    body = f'''
+{banner(lang, t(C["h1"], lang), t(C["sub"], lang), [t(C["h1"], lang)])}
 
-    body = banner(lang, t(C["banner_h"], lang), t(C["banner_p"], lang), t(C["crumb"], lang)) + f'''
 <section class="section">
-  <div class="wrap">
-    <div class="grid grid-3" style="margin-bottom:64px">
-{chr(10).join(cards)}
+  <div class="wrap contact-wrap">
+    <div class="contact-cards">
+      <article class="info-card reveal">
+        <span class="ico">{I["pin"]}</span>
+        <h3>{t(C["office"], lang)}</h3>
+        <p><a href="{MAPS_URL}" target="_blank" rel="noopener noreferrer">{t(ADDRESS_BR, lang)}</a></p>
+      </article>
+      <article class="info-card reveal" data-delay="80">
+        <span class="ico">{I["phone"]}</span>
+        <h3>{t(C["phone_h"], lang)}</h3>
+        <p><a href="tel:{PHONE_HREF}" dir="ltr">{PHONE}</a></p>
+        <p class="muted">{t(C["emerg"], lang)}</p>
+      </article>
+      <article class="info-card reveal" data-delay="160">
+        <span class="ico">{I["mail"]}</span>
+        <h3>{t(C["email_h"], lang)}</h3>
+        <p><a href="mailto:{EMAIL}" dir="ltr">{EMAIL}</a></p>
+        <p><a href="mailto:{EMAIL_SALES}" dir="ltr">{EMAIL_SALES}</a></p>
+      </article>
+      <article class="info-card reveal" data-delay="240">
+        <span class="ico">{I["clock"]}</span>
+        <h3>{t(C["hours_h"], lang)}</h3>
+        <p>{t(HOURS_FOOT, lang)}</p>
+      </article>
     </div>
 
-    <div class="contact-grid">
-      <div class="reveal">
-        <p class="eyebrow">{t(C["form_eyebrow"], lang)}</p>
-        <h2>{t(C["form_h2"], lang)}</h2>
-        <p>{t(C["form_lead"], lang)}</p>
-
-        <div class="map-embed" style="margin-top:32px">
-          <a class="pin" href="{MAPS_URL}" target="_blank" rel="noopener noreferrer" aria-label="{t(UI["map_label"], lang)}">
-            {I["pin"]}
-            <h4>{t(COMPANY, lang)}</h4>
-            <p>{t(ADDRESS_1L, lang)}</p>
-          </a>
-        </div>
-
-        <ul class="check-list" style="margin-top:32px">
-          <li><span class="ico">{I["check"]}</span><span><b>{t(C["office_hours"], lang)}</b><span>{t(HOURS, lang)}</span></span></li>
-          <li><span class="ico">{I["check"]}</span><span><b>{t(C["emergency"], lang)}</b><span>{t(C["emergency_v"], lang)}</span></span></li>
-        </ul>
+    <aside class="contact-aside reveal">
+      <h2>{t(UI["quote_req"], lang)}</h2>
+      <p>{t(CTA_DEFAULT[1], lang)}</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="{link(lang, "quote.html")}">{t(UI["quote_req"], lang)} {I["arrow"]}</a>
+        <a class="btn btn-outline" href="{link(lang, "products.html")}">{t(UI["browse"], lang)}</a>
       </div>
-
-      <div class="form-card reveal" data-delay="120">
-        <form data-contact-form novalidate data-sent-message="{t(C["sent"], lang)}"
-              data-endpoint="{CONTACT_ENDPOINT}" data-lang="{lang}"
-              data-sending-message="{t(C["sending"], lang)}" data-error-message="{t(C["send_failed"], lang)}"
-              data-service-names='{service_names}' data-quote-prefill="{t(C["quote_prefill"], lang)}">
-          <!-- Honeypot: hidden from people, tempting to bots. A filled-in
-               value marks the submission as spam, server-side. -->
-          <div class="visually-hidden" aria-hidden="true">
-            <label for="website">{t(C["honeypot"], lang)}</label>
-            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
-          </div>
-          <div class="form-status" role="status" aria-live="polite"></div>
-
-          <div class="grid grid-2" style="gap:0 20px">
-            <div class="field">
-              <label for="name">{t(F["name"], lang)} <span class="req">*</span></label>
-              <input type="text" id="name" name="name" placeholder="{t(F["name_ph"], lang)}" required>
-              <span class="err">{t(F["req"], lang)}</span>
-            </div>
-            <div class="field">
-              <label for="company">{t(F["company"], lang)}</label>
-              <input type="text" id="company" name="company" placeholder="{t(F["company_ph"], lang)}">
-              <span class="err"></span>
-            </div>
-            <div class="field">
-              <label for="email">{t(F["email"], lang)} <span class="req">*</span></label>
-              <input type="email" id="email" name="email" placeholder="you@example.com" dir="ltr" required>
-              <span class="err">{t(F["bad_email"], lang)}</span>
-            </div>
-            <div class="field">
-              <label for="phone">{t(F["phone"], lang)} <span class="req">*</span></label>
-              <input type="tel" id="phone" name="phone" placeholder="+965 0000 0000" dir="ltr" required>
-              <span class="err">{t(F["bad_phone"], lang)}</span>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="service">{t(F["service"], lang)} <span class="req">*</span></label>
-            <select id="service" name="service" required>
-              <option value="">{t(F["select"], lang)}</option>
-{options}
-            </select>
-            <span class="err">{t(F["choose"], lang)}</span>
-          </div>
-
-          <div class="field">
-            <label for="message">{t(F["message"], lang)} <span class="req">*</span></label>
-            <textarea id="message" name="message" placeholder="{t(F["message_ph"], lang)}" required></textarea>
-            <span class="err">{t(F["req"], lang)}</span>
-          </div>
-
-          <button class="btn btn-primary" type="submit" style="width:100%">{t(F["submit"], lang)} {I["arrow"]}</button>
-          <p class="form-note">{note}</p>
-        </form>
-      </div>
-    </div>
+    </aside>
   </div>
 </section>
-
-{cta(lang, C["cta"])}
 '''
     page(lang, "contact.html", t(C["title"], lang), t(C["desc"], lang), body)
 
+
 def build_privacy(lang):
     P = PRIVACY
-    out = [f'<span class="updated">{t(P["updated"], lang)}</span>',
-           f'<p class="lead">{t(P["intro"], lang).replace("{COMPANY}", t(COMPANY, lang))}</p>']
-    for heading, blocks in P["sections"]:
-        out.append(f'<h2>{t(heading, lang)}</h2>')
-        for kind, payload in blocks:
-            if kind == "p":
-                out.append(f'<p>{t(payload, lang)}</p>')
-            else:
-                items = "\n        ".join(f'<li>{t(i, lang)}</li>' for i in payload)
-                out.append(f'<ul>\n        {items}\n      </ul>')
-    out.append(f'<h2>{t(P["contact_h"], lang)}</h2>')
-    out.append(f'<p>{t(P["contact_p"], lang)}</p>')
-    out.append('<ul>\n        '
-               f'<li><b>{t(COMPANY, lang)}</b></li>\n        '
-               f'<li>{t(ADDRESS_1L, lang)}</li>\n        '
-               f'<li>{t(P["tel_label"], lang)} <a href="tel:{PHONE_HREF}" dir="ltr">{PHONE}</a></li>\n        '
-               f'<li>{t(P["email_label"], lang)} <a href="mailto:{EMAIL}" dir="ltr">{EMAIL}</a></li>\n      </ul>')
-    rich = "\n      ".join(out)
+    secs = "\n".join(
+        f'    <h2>{t(head, lang)}</h2>\n    <p>{t(text, lang)}</p>'
+        for head, text in P["sections"])
+    body = f'''
+{banner(lang, t(P["h1"], lang), t(P["sub"], lang), [t(P["h1"], lang)])}
 
-    body = banner(lang, t(P["banner_h"], lang), t(P["banner_p"], lang), t(P["crumb"], lang)) + f'''
 <section class="section">
-  <div class="wrap">
-    <div class="rich reveal">
-      {rich}
-    </div>
+  <div class="wrap narrow rich reveal">
+{secs}
+    <p>{t(P["contact_line"], lang)} <a href="mailto:{EMAIL}" dir="ltr">{EMAIL}</a></p>
   </div>
 </section>
 '''
     page(lang, "privacy-policy.html", t(P["title"], lang), t(P["desc"], lang), body)
 
+
 def build_404(lang):
     N = NOTFOUND
+    links = "\n".join(
+        f'        <a class="btn btn-outline btn-sm" href="{link(lang, cat_route(c))}">{t(c["name"], lang)}</a>'
+        for c in CATEGORIES)
     body = f'''
-<section class="section" style="padding:120px 0">
-  <div class="wrap center">
-    <p class="eyebrow" style="justify-content:center">{t(N["eyebrow"], lang)}</p>
-    <h1 style="margin-bottom:18px">{t(N["h1"], lang)}</h1>
-    <p class="lead" style="max-width:560px;margin:0 auto 32px">{t(N["lead"], lang)}</p>
-    <div class="btn-row center">
-      <a class="btn btn-primary" href="{link(lang, "index.html")}">{t(N["back"], lang)} {I["arrow"]}</a>
-      <a class="btn btn-dark" href="{link(lang, "contact.html")}">{t(N["contact"], lang)}</a>
+<section class="section section--dark nf">
+  <div class="wrap narrow">
+    <p class="nf-code" dir="ltr">{t(N["h1"], lang)}</p>
+    <h1>{t(N["head"], lang)}</h1>
+    <p class="lead">{t(N["text"], lang)}</p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="{link(lang, "products.html")}">{t(UI["browse"], lang)} {I["arrow"]}</a>
+      <a class="btn btn-outline" href="{link(lang, "index.html")}">{t(UI["home"], lang)}</a>
+    </div>
+    <div class="nf-links">
+{links}
     </div>
   </div>
 </section>
@@ -1978,11 +2527,158 @@ def build_404(lang):
     page(lang, "404.html", t(N["title"], lang), t(N["desc"], lang), body)
 
 # ============================================================ write
-SITEMAP_PRIORITY = {
-    "index.html": "1.0", "services.html": "0.9", "about.html": "0.8",
-    "contact.html": "0.8", "partners.html": "0.6", "clients.html": "0.6",
-    "privacy-policy.html": "0.3",
-}
+SITEMAP_PRIORITY = {"index.html": "1.0", "products.html": "0.9"}
+for _c in CATEGORIES:
+    SITEMAP_PRIORITY[cat_route(_c)] = "0.8"
+for _p in PRODUCTS:
+    SITEMAP_PRIORITY[prod_route(_p)] = "0.7"
+SITEMAP_PRIORITY.update({
+    "brands.html": "0.6", "support.html": "0.6", "about.html": "0.6",
+    "contact.html": "0.7", "quote.html": "0.7", "privacy-policy.html": "0.3",
+})
+
+
+# ============================================================ chrome overrides
+# The header and footer below replace the ones above, which were built for a
+# services site. Two things change, and both follow from selling products:
+# the header carries a quote basket with a live count, and the footer's second
+# column lists catalogue categories instead of services.
+
+def header(lang, fname):
+    a = asset(lang, "")
+    return f'''
+<div class="topbar">
+  <div class="wrap">
+    <ul class="topbar-list">
+      <li class="hide-sm">{I["pin"]}<a href="{MAPS_URL}" target="_blank" rel="noopener noreferrer" aria-label="{t(UI["map_label"], lang)}">{t(ADDRESS_1L, lang)}</a></li>
+      <li>{I["phone"]}<a href="tel:{PHONE_HREF}" dir="ltr">{PHONE}</a></li>
+      <li class="hide-md">{I["mail"]}<a href="mailto:{EMAIL_SALES}" dir="ltr">{EMAIL_SALES}</a></li>
+      <li class="hide-md">{I["clock"]}<span>{t(RESPONSE_24, lang)}</span></li>
+    </ul>
+    <div class="topbar-end">
+      <div class="topbar-social" aria-label="{t(UI["social"], lang)}">
+        <a href="{FACEBOOK_URL}" target="_blank" rel="noopener noreferrer" aria-label="AZSCO on Facebook">{I["facebook"]}</a>
+        <a href="{X_URL}" target="_blank" rel="noopener noreferrer" aria-label="AZSCO on X">{I["x"]}</a>
+        <a href="{INSTAGRAM_URL}" target="_blank" rel="noopener noreferrer" aria-label="AZSCO on Instagram">{I["instagram"]}</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="{link(lang, "index.html")}" aria-label="{t(UI["home_label"], lang)}">
+      <img class="brand-logo" src="{a}assets/img/AZSCO_Logo.png" alt="{t(SITE_NAME, lang)}" width="347" height="160">
+    </a>
+
+    <nav aria-label="{t(UI["main_nav"], lang)}">
+        {desktop_nav(lang)}
+    </nav>
+
+    <div class="header-cta">
+      {lang_link(lang, fname, "lang-switch lang-switch--head")}
+      <!-- The count is written by assets/js/main.js from the basket; it ships
+           at zero and hidden, so the markup is correct without JavaScript. -->
+      <a class="quote-btn" href="{link(lang, "quote.html")}">
+        {I["file"]}<span class="quote-btn-text">{t(UI["your_quote"], lang)}</span>
+        <span class="quote-count js-quote-count" hidden dir="ltr">0</span>
+      </a>
+      <button class="burger" type="button" aria-label="{t(UI["menu_open"], lang)}" aria-expanded="false" aria-controls="mobile-nav"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<div class="backdrop"></div>
+<nav class="mobile-nav" id="mobile-nav" aria-label="{t(UI["mob_nav"], lang)}">
+  <div class="mobile-nav-head">
+    <img class="brand-logo" src="{a}assets/img/AZSCO_Logo.png" alt="{t(SITE_NAME, lang)}" width="347" height="160">
+    <button class="close" type="button" aria-label="{t(UI["menu_close"], lang)}">{I["close"]}</button>
+  </div>
+      {mobile_nav(lang)}
+  <div class="mobile-nav-foot">
+    <a class="btn btn-primary" href="{link(lang, "quote.html")}">{t(UI["quote_req"], lang)}</a>
+    <a class="m-contact" href="tel:{PHONE_HREF}">{I["phone"]}<span dir="ltr">{PHONE}</span></a>
+    <a class="m-contact" href="mailto:{EMAIL_SALES}">{I["mail"]}<span dir="ltr">{EMAIL_SALES}</span></a>
+  </div>
+</nav>
+'''
+
+
+def footer(lang):
+    a = asset(lang, "")
+    company = "\n          ".join(
+        f'<li><a href="{link(lang, href)}">{t(label, lang)}</a></li>'
+        for label, href in FOOTER["company"])
+    catalogue = "\n          ".join(
+        [f'<li><a href="{link(lang, "products.html")}">{t(UI["all_products"], lang)}</a></li>'] +
+        [f'<li><a href="{link(lang, cat_route(c))}">{t(c["name"], lang)}</a></li>' for c in CATEGORIES])
+    return f'''
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="{link(lang, "index.html")}" aria-label="{t(UI["home_label"], lang)}">
+          <img class="brand-logo" src="{a}assets/img/AZSCO_Logo_white.png" alt="{t(SITE_NAME, lang)}" width="347" height="160">
+        </a>
+        <p>{t(FOOTER["blurb"], lang)}</p>
+        <div class="footer-social">
+          <a href="{FACEBOOK_URL}" target="_blank" rel="noopener noreferrer" aria-label="AZSCO on Facebook">{I["facebook"]}</a>
+          <a href="{X_URL}" target="_blank" rel="noopener noreferrer" aria-label="AZSCO on X">{I["x"]}</a>
+          <a href="{INSTAGRAM_URL}" target="_blank" rel="noopener noreferrer" aria-label="AZSCO on Instagram">{I["instagram"]}</a>
+        </div>
+      </div>
+
+      <div>
+        <h4>{t(FOOTER["cat_head"], lang)}</h4>
+        <ul class="footer-links">
+          {catalogue}
+        </ul>
+      </div>
+
+      <div>
+        <h4>{t(FOOTER["com_head"], lang)}</h4>
+        <ul class="footer-links">
+          {company}
+        </ul>
+      </div>
+
+      <div>
+        <h4>{t(FOOTER["con_head"], lang)}</h4>
+        <ul class="footer-contact">
+          <li>{I["pin"]}<span>{t(ADDRESS_BR, lang)}</span></li>
+          <li>{I["phone"]}<a href="tel:{PHONE_HREF}" dir="ltr">{PHONE}</a></li>
+          <li>{I["mail"]}<span><a href="mailto:{EMAIL}" dir="ltr">{EMAIL}</a><small>{t(FOOTER["email_general"], lang)}</small></span></li>
+          <li>{I["mail"]}<span><a href="mailto:{EMAIL_SALES}" dir="ltr">{EMAIL_SALES}</a><small>{t(FOOTER["email_sales"], lang)}</small></span></li>
+          <li>{I["clock"]}<span>{t(HOURS_FOOT, lang)}</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; <span data-year>2026</span> {t(COMPANY, lang)}. {t(FOOTER["rights"], lang)}</p>
+      <ul>
+        <li><a href="{link(lang, "privacy-policy.html")}">{t(FOOTER["privacy"], lang)}</a></li>
+        <li><a href="{link(lang, "contact.html")}">{t(FOOTER["contact"], lang)}</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<button class="to-top" type="button" aria-label="{t(UI["to_top"], lang)}">{I["up"]}</button>
+<a class="whatsapp-fab" href="{WHATSAPP_URL}" target="_blank" rel="noopener noreferrer" aria-label="{t(UI["whatsapp"], lang)}">{I["whatsapp"]}</a>
+
+<div class="mobile-bar">
+  <a class="mobile-bar-call" href="tel:{PHONE_HREF}">{I["phone"]}<span>{t(UI["call_now"], lang)}</span></a>
+  <a class="mobile-bar-quote" href="{link(lang, "quote.html")}">{I["file"]}<span>{t(UI["get_quote"], lang)}</span>
+    <span class="quote-count js-quote-count" hidden dir="ltr">0</span></a>
+</div>
+{chat_widget(lang)}
+<script src="{a}assets/js/main.js"></script>
+<script src="{a}assets/js/chat.js" defer></script>
+{analytics_tag()}
+</body>
+</html>
+'''
 
 BACKEND_FILES = (
     os.path.join("backend", "workers", "chat-worker.js"),
@@ -2087,13 +2783,19 @@ def write_redirect(out_path, target_url, lang="en"):
     with open(full, "w", encoding="utf-8") as fh:
         fh.write(html)
 
+
 if __name__ == "__main__":
     for lang in LANGS:
         build_home(lang)
+        build_catalogue(lang)
+        for c in CATEGORIES:
+            build_category(lang, c)
+        for p in PRODUCTS:
+            build_product(lang, p)
+        build_brands(lang)
+        build_quote(lang)
+        build_support(lang)
         build_about(lang)
-        build_services(lang)
-        build_clients(lang)
-        build_partners(lang)
         build_contact(lang)
         build_privacy(lang)
         build_404(lang)
@@ -2104,22 +2806,35 @@ if __name__ == "__main__":
         os.makedirs(os.path.dirname(full) or OUT, exist_ok=True)
         with open(full, "w", encoding="utf-8") as fh:
             fh.write(html)
-        print("wrote", out_path, len(html), "bytes")
+    print("wrote", len(PAGES), "pages")
 
-    # Retire the flat ".html" URLs this migration replaces, and add the /home/
-    # alias, without breaking anyone already pointed at the old address.
+    # The services site this replaced lived at these addresses. They are kept
+    # as redirects to the nearest page here rather than left to 404, so an
+    # inbound link or an indexed result still arrives somewhere useful.
+    # Pages the catalogue replaced. Both spellings are redirected: the clean
+    # URL that was canonical (/services/) and the flat one it superseded
+    # (/services.html), so neither an indexed result nor an old bookmark 404s.
+    RETIRED = {
+        "services": "products.html",   # the services site's catalogue equivalent
+        "clients": "about.html",
+        "partners": "brands.html",
+        "home": "index.html",          # alias, never canonical
+    }
     redirects = 0
     for lang in LANGS:
-        for fname in ROUTES:
-            if fname == "index.html":
-                continue  # no flat URL to retire: index.html *is* the file behind "/"
-            old_path = fname if lang == "en" else f"ar/{fname}"
-            write_redirect(old_path, canonical(lang, fname), lang)
+        prefix = "" if lang == "en" else "ar/"
+        for slug, target in RETIRED.items():
+            url = canonical(lang, target)
+            write_redirect(f"{prefix}{slug}/index.html", url, lang)
+            write_redirect(f"{prefix}{slug}.html", url, lang)
+            redirects += 2
+        # The flat ".html" spelling of each current page, for anything that
+        # linked to it before the clean URLs existed.
+        for fname in ("about.html", "contact.html", "privacy-policy.html",
+                      "products.html", "brands.html", "support.html", "quote.html"):
+            write_redirect(prefix + fname, canonical(lang, fname), lang)
             redirects += 1
-        home_stub = "home/index.html" if lang == "en" else "ar/home/index.html"
-        write_redirect(home_stub, canonical(lang, "index.html"), lang)
-        redirects += 1
-    print("wrote", redirects, "redirect stubs (retired .html URLs + /home alias)")
+    print("wrote", redirects, "redirect stubs")
 
     print("wrote sitemap.xml with", write_sitemap(), "urls")
     synced = sync_backend_prompt()

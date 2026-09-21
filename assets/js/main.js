@@ -186,117 +186,293 @@
      the services page) selects "Inquiry About a Service" and drops the
      service's name into the message field, so the visitor lands ready to
      send that enquiry rather than a blank general one. */
-  function prefillServiceQuery(form) {
-    var match = /[?&]service=([^&]+)/.exec(location.search);
-    if (!match) return;
-    var anchor = decodeURIComponent(match[1]);
-    var names = {};
-    try { names = JSON.parse(form.getAttribute('data-service-names') || '{}'); } catch (e) { return; }
-    var name = names[anchor];
-    if (!name) return;
+  /* ---------- the quote basket ----------------------------------------
+     Products the visitor has collected, kept in localStorage so the list
+     survives moving between pages, and read back on the quote page. It is
+     deliberately the only place basket state lives: the add buttons carry
+     the product's name and kind as data-, so this file needs no copy of the
+     catalogue and cannot disagree with the generated pages about what a
+     product is called -- including in Arabic, where the data- values are
+     already the Arabic strings.
 
-    var select = form.querySelector('#service');
-    if (select) select.value = 'service';
+     Every read and write is guarded: in private mode, or with site data
+     blocked, localStorage throws on access rather than returning null, and
+     an unguarded read would take the whole script down with it. */
+  var QUOTE_KEY = 'azsco-quote';
 
-    var message = form.querySelector('#message');
-    var template = form.getAttribute('data-quote-prefill') || '';
-    if (message && !message.value && template) {
-      message.value = template.replace('{SERVICE}', name);
-    }
+  function basketRead() {
+    try {
+      var raw = window.localStorage.getItem(QUOTE_KEY);
+      var list = raw ? JSON.parse(raw) : [];
+      return Object.prototype.toString.call(list) === '[object Array]' ? list : [];
+    } catch (e) { return []; }
   }
 
-  /* ---------- contact form validation ---------- */
-  function contactForm() {
-    var form = doc.querySelector('[data-contact-form]');
+  function basketWrite(list) {
+    try { window.localStorage.setItem(QUOTE_KEY, JSON.stringify(list)); } catch (e) { /* ignore */ }
+    basketCount();
+  }
+
+  function basketCount() {
+    var total = basketRead().reduce(function (n, it) { return n + (it.qty || 1); }, 0);
+    all('.js-quote-count').forEach(function (el) {
+      el.textContent = String(total);
+      el.hidden = total === 0;
+    });
+    return total;
+  }
+
+  /* Add buttons, on cards and on the product page. */
+  function addButtons() {
+    var buttons = all('.js-add');
+    if (!buttons.length) return;
+
+    function markAdded(btn) {
+      var label = btn.querySelector('.js-add-label');
+      if (label) label.textContent = btn.getAttribute('data-added') || label.textContent;
+      btn.classList.add('is-added');
+    }
+
+    // Reflect what is already in the basket, so returning to a page does not
+    // invite the visitor to add the same item twice.
+    var inBasket = {};
+    basketRead().forEach(function (it) { inBasket[it.sku] = true; });
+    buttons.forEach(function (btn) {
+      if (inBasket[btn.getAttribute('data-sku')]) markAdded(btn);
+    });
+
+    buttons.forEach(function (btn) {
+      on(btn, 'click', function () {
+        var sku = btn.getAttribute('data-sku');
+        if (!sku) return;
+        var list = basketRead();
+        var found = null;
+        list.forEach(function (it) { if (it.sku === sku) found = it; });
+        if (found) found.qty = (found.qty || 1) + 1;
+        else list.push({
+          sku: sku,
+          name: btn.getAttribute('data-name') || sku,
+          kind: btn.getAttribute('data-kind') || '',
+          cat: btn.getAttribute('data-cat') || '',
+          qty: 1
+        });
+        basketWrite(list);
+        markAdded(btn);
+      });
+    });
+  }
+
+  /* ---------- the quote page's list ---------- */
+  function quoteList() {
+    var list = doc.querySelector('.js-quote-list');
+    if (!list) return;
+    var empty = doc.querySelector('.js-quote-empty');
+    var form = doc.querySelector('#quote-form');
+    var clear = doc.querySelector('.js-clear-quote');
+    var labels = list.getAttribute('data-labels');
+    try { labels = JSON.parse(labels || '{}'); } catch (e) { labels = {}; }
+
+    function render() {
+      var items = basketRead();
+      list.textContent = '';
+      list.hidden = items.length === 0;
+      if (empty) empty.hidden = items.length > 0;
+      if (form) form.hidden = false;
+      if (clear) clear.hidden = items.length === 0;
+
+      items.forEach(function (it, index) {
+        var li = doc.createElement('li');
+        li.className = 'q-item';
+
+        var text = doc.createElement('div');
+        text.className = 'q-item-text';
+        var b = doc.createElement('b');
+        // textContent, not innerHTML: the basket is editable by anyone with
+        // devtools, so nothing from it is ever parsed as markup.
+        b.textContent = it.name || it.sku;
+        var small = doc.createElement('small');
+        small.textContent = [it.cat, it.kind].filter(Boolean).join(' · ');
+        text.appendChild(b);
+        text.appendChild(small);
+
+        var qty = doc.createElement('div');
+        qty.className = 'q-qty';
+        var minus = doc.createElement('button');
+        minus.type = 'button';
+        minus.textContent = '−';
+        minus.setAttribute('aria-label', labels.less || 'Decrease quantity');
+        var input = doc.createElement('input');
+        input.type = 'number';
+        input.min = '1';
+        input.value = String(it.qty || 1);
+        input.setAttribute('aria-label', labels.qty || 'Quantity');
+        var plus = doc.createElement('button');
+        plus.type = 'button';
+        plus.textContent = '+';
+        plus.setAttribute('aria-label', labels.more || 'Increase quantity');
+        qty.appendChild(minus);
+        qty.appendChild(input);
+        qty.appendChild(plus);
+
+        var remove = doc.createElement('button');
+        remove.type = 'button';
+        remove.className = 'q-remove';
+        remove.setAttribute('aria-label', (labels.remove || 'Remove') + ': ' + (it.name || it.sku));
+        remove.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"'
+          + ' stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+
+        function setQty(n) {
+          var items2 = basketRead();
+          if (!items2[index]) return;
+          if (n < 1) items2.splice(index, 1);
+          else items2[index].qty = n;
+          basketWrite(items2);
+          render();
+        }
+        on(minus, 'click', function () { setQty((parseInt(input.value, 10) || 1) - 1); });
+        on(plus, 'click', function () { setQty((parseInt(input.value, 10) || 1) + 1); });
+        on(input, 'change', function () { setQty(parseInt(input.value, 10) || 1); });
+        on(remove, 'click', function () { setQty(0); });
+
+        li.appendChild(text);
+        li.appendChild(qty);
+        li.appendChild(remove);
+        list.appendChild(li);
+      });
+    }
+
+    all('.js-clear-quote').forEach(function (btn) {
+      on(btn, 'click', function () { basketWrite([]); render(); });
+    });
+    render();
+  }
+
+  /* ---------- catalogue filters ----------------------------------------
+     Filtering happens in the browser against data- attributes the builder
+     wrote onto each card, so there is no second copy of the catalogue in
+     JavaScript and no request to make. With scripting off, every card is
+     simply visible -- which is the correct catalogue, just unfiltered. */
+  function catalogueFilters() {
+    var form = doc.querySelector('#filters');
+    var results = doc.querySelector('.js-results');
+    if (!form || !results) return;
+    var cards = all('.p-card', results);
+    var count = doc.querySelector('.js-count');
+    var empty = doc.querySelector('.js-empty');
+
+    function checked(name) {
+      return all('input[name="' + name + '"]:checked', form)
+        .map(function (i) { return i.value; });
+    }
+
+    function apply() {
+      var cats = checked('cat');
+      var brands = checked('brand');
+      var shown = 0;
+
+      cards.forEach(function (card) {
+        var cat = card.getAttribute('data-cat') || '';
+        var cardBrands = (card.getAttribute('data-brands') || '').split(' ');
+        var catOk = !cats.length || cats.indexOf(cat) !== -1;
+        var brandOk = !brands.length || brands.some(function (b) {
+          return cardBrands.indexOf(b) !== -1;
+        });
+        var show = catOk && brandOk;
+        card.hidden = !show;
+        if (show) shown++;
+      });
+
+      if (count) count.textContent = String(shown);
+      if (empty) empty.hidden = shown > 0;
+      results.hidden = shown === 0;
+    }
+
+    on(form, 'change', apply);
+    all('.js-clear').forEach(function (btn) {
+      on(btn, 'click', function () {
+        all('input[type="checkbox"]', form).forEach(function (i) { i.checked = false; });
+        apply();
+      });
+    });
+    apply();
+  }
+
+  /* ---------- quote form ----------------------------------------------
+     Validates, attaches the basket, and posts to the same worker route the
+     contact form uses. It never reports success it did not get: with no
+     endpoint configured, or on a failed request, it says so and gives the
+     phone number instead. */
+  function quoteForm() {
+    var form = doc.querySelector('#quote-form');
     if (!form) return;
-    prefillServiceQuery(form);
-    var status = form.querySelector('.form-status');
-
-    // The markup already carries each field's message, authored per language;
-    // reusing it keeps the Arabic form speaking Arabic when a check fails.
-    function fail(field) {
-      var wrap = field.closest('.field');
-      if (wrap) wrap.classList.add('has-error');
-      return false;
-    }
-
-    function check(field) {
-      var wrap = field.closest('.field');
-      if (!wrap) return true;           // honeypot and other unwrapped inputs
-      wrap.classList.remove('has-error');
-      var val = (field.value || '').trim();
-
-      if (field.hasAttribute('required') && !val) return fail(field);
-      if (field.type === 'email' && val && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val)) {
-        return fail(field);
-      }
-      if (field.type === 'tel' && val && !/^[0-9+()\-\s]{6,}$/.test(val)) {
-        return fail(field);
-      }
-      return true;
-    }
+    var msg = form.querySelector('.form-msg');
+    var submit = form.querySelector('[type="submit"]');
+    var itemsField = form.querySelector('.js-quote-items');
 
     function fields() {
       return all('input, select, textarea', form).filter(function (f) {
-        return f.name !== 'website';    // the honeypot is never validated
+        return f.name && f.name !== 'website' && f.type !== 'hidden';
       });
+    }
+
+    function setError(field, on_) {
+      var wrap = field.closest('.field');
+      if (wrap) wrap.classList.toggle('is-invalid', on_);
+    }
+
+    function check(field) {
+      var value = (field.value || '').trim();
+      var ok = true;
+      if (field.hasAttribute('required') && !value) ok = false;
+      if (ok && field.type === 'email' && value) ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
+      setError(field, !ok);
+      return ok;
     }
 
     fields().forEach(function (f) {
       on(f, 'blur', function () { check(f); });
-      on(f, 'input', function () {
-        var wrap = f.closest('.field');
-        if (wrap && wrap.classList.contains('has-error')) check(f);
-      });
+      on(f, 'input', function () { if (f.closest('.field').classList.contains('is-invalid')) check(f); });
     });
 
-    // Every message is authored per language on the form element itself.
-    function say(msg, isError) {
-      if (!status) return;
-      status.textContent = msg || '';
-      status.classList.add('is-visible');
-      status.classList.toggle('is-error', !!isError);
-    }
-
-    // Guarded: a form built without a .form-status element would otherwise
-    // throw here and take the whole submit handler down with it.
-    function scrollToStatus() {
-      if (status) status.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    function say(text) { if (msg) msg.textContent = text || ''; }
 
     on(form, 'submit', function (e) {
       e.preventDefault();
       var ok = true;
       fields().forEach(function (f) { if (!check(f)) ok = false; });
-
       if (!ok) {
-        var first = form.querySelector('.has-error input, .has-error select, .has-error textarea');
+        var first = form.querySelector('.is-invalid input, .is-invalid select, .is-invalid textarea');
         if (first) first.focus();
         return;
       }
 
+      // The basket travels as a readable list, so the enquiry email says what
+      // was asked for without anyone having to decode JSON.
+      var items = basketRead();
+      var summary = items.map(function (it) {
+        return (it.qty || 1) + ' × ' + (it.name || it.sku)
+          + (it.cat ? ' (' + it.cat + ')' : '');
+      }).join('\n');
+      if (itemsField) itemsField.value = summary;
+
       var endpoint = form.getAttribute('data-endpoint');
-      var submit = form.querySelector('[type="submit"]');
       var payload = { lang: form.getAttribute('data-lang') || 'en' };
       fields().forEach(function (f) {
-        if (!f.name) return;
-        // Send a select's visible label, not its value — the email should read
-        // "Inquiry About a Service", not "service" (and in Arabic on /ar/).
         payload[f.name] = (f.tagName === 'SELECT' && f.selectedIndex >= 0)
           ? f.options[f.selectedIndex].text
           : f.value;
       });
+      payload.items = summary;
+      // Fold the basket into the message too: the worker relays a fixed set
+      // of fields, and the enquiry is useless without the list.
+      if (summary) payload.message = (payload.message || '') + '\n\n--\n' + summary;
       var honeypot = form.querySelector('[name="website"]');
       if (honeypot) payload.website = honeypot.value;
 
-      if (!endpoint) {                      // nothing to post to — say so, don't pretend
-        say(form.getAttribute('data-error-message'), true);
-        scrollToStatus();
-        return;
-      }
+      if (!endpoint) { say(form.getAttribute('data-failed')); return; }
 
       if (submit) submit.disabled = true;
-      say(form.getAttribute('data-sending-message'));
+      say(form.getAttribute('data-sending'));
 
       fetch(endpoint, {
         method: 'POST',
@@ -308,16 +484,17 @@
           return res.json();
         })
         .then(function () {
-          say(form.getAttribute('data-sent-message'));
+          say(form.getAttribute('data-sent'));
           form.reset();
+          basketWrite([]);
+          var list = doc.querySelector('.js-quote-list');
+          if (list) { list.textContent = ''; list.hidden = true; }
+          var empty = doc.querySelector('.js-quote-empty');
+          if (empty) empty.hidden = false;
+          all('.js-clear-quote').forEach(function (b) { b.hidden = true; });
         })
-        .catch(function () {
-          say(form.getAttribute('data-error-message'), true);
-        })
-        .then(function () {
-          if (submit) submit.disabled = false;
-          scrollToStatus();
-        });
+        .catch(function () { say(form.getAttribute('data-failed')); })
+        .then(function () { if (submit) submit.disabled = false; });
     });
   }
 
@@ -349,7 +526,11 @@
     counters();
     accordions();
     backToTop();
-    contactForm();
+    basketCount();  // the badge reflects storage on load, not only after a write
+    addButtons();
+    quoteList();
+    catalogueFilters();
+    quoteForm();
     year();
   }
 

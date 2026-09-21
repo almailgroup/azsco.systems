@@ -152,8 +152,11 @@ li{margin-bottom:.45em}
 .btn svg{width:16px;height:16px;flex:none}
 .btn-primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .btn-primary:hover{background:var(--accent-strong);border-color:var(--accent-strong);color:var(--accent-ink);transform:translateY(-2px);box-shadow:0 12px 26px rgba(0,0,0,.28)}
-.btn-outline{border-color:rgba(255,255,255,.5);color:#fff}
-.btn-outline:hover{background:#fff;border-color:#fff;color:var(--ink);transform:translateY(-2px)}
+/* Contextual, like every other accent-coloured component: the services site
+   only ever put this button on dark surfaces, so it was hardcoded white and
+   turned invisible the moment the catalogue used it on a light one. */
+.btn-outline{background:transparent;border-color:var(--accent);color:var(--accent)}
+.btn-outline:hover{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);transform:translateY(-2px)}
 .btn-dark{background:var(--grey-900);border-color:var(--ink);color:#fff}
 .btn-dark:hover{background:var(--grey-800);border-color:var(--ink);color:#fff;transform:translateY(-2px)}
 .btn-row{display:flex;flex-wrap:wrap;gap:16px}
@@ -1231,3 +1234,503 @@ li{margin-bottom:.45em}
   .chat-launcher .chat-launcher-text{display:none}
   .chat-launcher{padding:12px;border-radius:50%;min-height:48px}
 }
+
+/* ==========================================================================
+   Catalogue — the product-selling layer
+   --------------------------------------------------------------------------
+   Everything below belongs to the shop: the header's quote basket, the split
+   hero, category and product cards, the filtered catalogue, the product page,
+   and the quote basket itself. It uses the same four contextual accent tokens
+   as the rest of the sheet, so each component inverts on a dark surface
+   without a second rule.
+   ========================================================================== */
+
+/* A class carrying its own `display` outranks the user agent's [hidden]
+   rule, which would leave an element scripted hidden (the basket badge, the
+   results grid, the basket list) on screen. Settle it once, here. */
+[hidden]{display:none!important}
+
+/* ---------- small shared helpers ---------- */
+.narrow{max-width:820px;margin-inline:auto}
+.muted{color:var(--muted);font-size:.9rem}
+.center-cta{text-align:center;margin-top:44px}
+.banner-lead{max-width:640px}
+.sec-head--center{max-width:720px;margin-left:auto;margin-right:auto;text-align:center}
+.sec-head--center p{margin-inline:auto}
+.btn-sm{padding:11px 18px;font-size:.78rem}
+
+.link-btn{
+  background:none;border:0;padding:0;cursor:pointer;
+  font:inherit;font-size:.82rem;font-weight:600;color:var(--accent-strong);
+  text-decoration:underline;text-underline-offset:3px;
+}
+.link-btn:hover{opacity:.7}
+
+/* Empty states — filtered catalogue with no matches, empty quote basket. */
+.empty{
+  text-align:center;padding:64px 28px;border:1px dashed var(--line);
+  border-radius:var(--radius-lg);background:var(--bg-alt);
+}
+.empty .ico{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:56px;height:56px;margin-bottom:18px;border-radius:50%;
+  background:var(--accent-soft);color:var(--accent);
+}
+.empty .ico svg{width:24px;height:24px}
+.empty h3{margin-bottom:8px}
+.empty p{max-width:460px;margin-inline:auto}
+.empty .btn-row{justify-content:center;margin-top:22px}
+
+.side-block{
+  border:1px solid var(--line);border-radius:var(--radius-lg);
+  padding:26px;background:#fff;margin-bottom:22px;
+}
+.side-block h3{font-size:1.05rem;margin-bottom:14px}
+.side-block--dark{
+  background:var(--grey-900);border-color:var(--grey-700);
+  --accent:#fff;--accent-strong:#fff;--accent-soft:rgba(255,255,255,.12);
+  --accent-ink:#141414;--accent-ghost:rgba(255,255,255,.22);
+}
+.side-block--dark h3{color:#fff}
+.side-block--dark p{margin:0 0 6px;color:#c9c9c9}
+.side-block--dark a{color:#fff;text-decoration:underline;text-underline-offset:3px}
+
+/* ---------- header quote basket ---------- */
+.quote-btn{
+  display:inline-flex;align-items:center;gap:8px;position:relative;
+  padding:11px 16px;border:1px solid var(--line);border-radius:var(--radius);
+  font-size:.76rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink);background:#fff;transition:all .2s var(--ease);
+}
+.quote-btn:hover{border-color:var(--ink);background:var(--ink);color:#fff}
+.quote-btn svg{width:16px;height:16px}
+.quote-count{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:20px;height:20px;padding:0 6px;border-radius:999px;
+  background:var(--ink);color:#fff;font-size:.68rem;font-weight:700;letter-spacing:0;
+}
+.quote-btn:hover .quote-count{background:#fff;color:var(--ink)}
+
+/* .eyebrow is inline-flex with a rule as its ::before, but never sized a
+   child icon -- nothing on the services site put one inside. The catalogue
+   hero does, so give it a size rather than letting it take its intrinsic one. */
+.eyebrow svg{width:16px;height:16px;flex:none}
+.eyebrow::before{flex:none}
+
+/* ---------- catalogue hero ---------- */
+/* Two columns rather than the services site's single centred column: the
+   headline states what is sold, the panel beside it is the way in. */
+.hero--catalogue{padding:74px 0 80px}
+.hero--catalogue .wrap{
+  display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center;
+  position:relative;z-index:2;
+}
+.hero--catalogue h1{font-size:clamp(2.3rem,3.9vw,3.4rem);margin-bottom:18px}
+.hero--catalogue .lead{font-size:1.1rem;color:#c4c4c4;max-width:560px}
+.hero--catalogue .btn-row{margin-top:30px}
+
+.assur{list-style:none;margin:34px 0 0;padding:0;display:grid;gap:12px}
+.assur li{display:flex;align-items:center;gap:10px;font-size:.92rem;color:#bdbdbd}
+.assur svg{width:17px;height:17px;flex:none;color:#fff}
+
+.hero-pick{
+  background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.16);
+  border-radius:var(--radius-lg);padding:28px;backdrop-filter:blur(6px);
+}
+.hero-pick-head h2{font-size:1.2rem;color:#fff;margin-bottom:4px}
+.hero-pick-head p{font-size:.88rem;color:#a8a8a8;margin-bottom:20px}
+.pick-list{display:grid;gap:10px}
+.pick{
+  display:flex;align-items:center;gap:14px;padding:15px 16px;
+  border:1px solid rgba(255,255,255,.14);border-radius:var(--radius);
+  background:rgba(255,255,255,.04);transition:all .22s var(--ease);
+}
+.pick:hover{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.34);transform:translateX(4px)}
+.pick>.ico{
+  display:flex;align-items:center;justify-content:center;flex:none;
+  width:40px;height:40px;border-radius:var(--radius);
+  background:rgba(255,255,255,.1);color:#fff;
+}
+.pick>.ico svg{width:19px;height:19px}
+.pick-text{display:flex;flex-direction:column;flex:1;min-width:0}
+.pick-text b{color:#fff;font-size:.95rem;font-weight:600;line-height:1.3}
+.pick-text small{color:#9a9a9a;font-size:.8rem;line-height:1.4}
+.pick>svg:last-child{width:16px;height:16px;flex:none;color:#fff;opacity:.55}
+.pick:hover>svg:last-child{opacity:1}
+
+/* ---------- category cards ---------- */
+.cat-grid{gap:20px}
+.cat-card{
+  display:flex;flex-direction:column;padding:30px 26px;
+  border:1px solid var(--line);border-radius:var(--radius-lg);background:#fff;
+  transition:all .25s var(--ease);
+}
+.cat-card:hover{border-color:var(--ink);box-shadow:var(--shadow);transform:translateY(-4px)}
+.cat-card .ico{
+  display:flex;align-items:center;justify-content:center;
+  width:52px;height:52px;margin-bottom:20px;border-radius:var(--radius);
+  background:var(--accent-soft);color:var(--accent);
+}
+.cat-card .ico svg{width:23px;height:23px}
+.cat-card h3{font-size:1.2rem;margin-bottom:8px}
+.cat-card p{font-size:.9rem;flex:1;margin-bottom:18px}
+.cat-count{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent-strong);
+}
+.cat-count b{font-size:.95rem}
+.cat-count svg{width:15px;height:15px;transition:transform .2s var(--ease)}
+.cat-card:hover .cat-count svg{transform:translateX(4px)}
+
+/* ---------- product card ---------- */
+.p-grid{gap:22px;align-items:stretch}
+.p-card{
+  display:flex;flex-direction:column;background:#fff;
+  border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;
+  transition:all .25s var(--ease);
+}
+.p-card:hover{border-color:var(--ink);box-shadow:var(--shadow);transform:translateY(-4px)}
+/* The catalogue ships without product photography, so each card carries the
+   category mark on a tinted ground rather than a placeholder image box. */
+.p-card-media{
+  display:flex;align-items:center;justify-content:center;
+  height:132px;background:var(--bg-alt);border-bottom:1px solid var(--line);
+  color:var(--ink);
+}
+.p-card-media svg{width:40px;height:40px;opacity:.5;transition:all .25s var(--ease)}
+.p-card:hover .p-card-media svg{opacity:.85;transform:scale(1.06)}
+.p-card-body{padding:22px 22px 0;flex:1}
+.p-kind{
+  font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px;
+}
+.p-card h3{font-size:1.06rem;line-height:1.3;margin-bottom:14px}
+.p-card h3 a{color:var(--ink)}
+.p-card h3 a:hover{text-decoration:underline;text-underline-offset:3px}
+.p-spec-mini{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.p-spec-mini li{
+  display:flex;justify-content:space-between;gap:12px;
+  font-size:.82rem;padding-bottom:6px;border-bottom:1px solid var(--line);
+}
+.p-spec-mini li:last-child{border-bottom:0}
+.p-spec-mini span{color:var(--muted)}
+.p-spec-mini b{color:var(--ink);font-weight:600;text-align:end}
+.p-card-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:18px 22px 22px;flex-wrap:wrap;
+}
+
+/* Add-to-quote button, and the state it flips to once the item is in. */
+.js-add{display:inline-flex;align-items:center;gap:7px}
+.js-add svg{width:14px;height:14px}
+.js-add.is-added{background:var(--bg-alt);color:var(--ink);border-color:var(--ink)}
+.js-add.is-added svg{display:none}
+
+/* ---------- catalogue page ---------- */
+.catalogue-wrap{display:grid;grid-template-columns:262px 1fr;gap:44px;align-items:start}
+.filters{
+  position:sticky;top:calc(var(--head) + 20px);
+  border:1px solid var(--line);border-radius:var(--radius-lg);
+  padding:24px;background:#fff;
+}
+.filters-head{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding-bottom:14px;margin-bottom:6px;border-bottom:1px solid var(--line);
+}
+.filters-head h2{font-size:1rem;margin:0}
+.filters fieldset{border:0;padding:18px 0 0;margin:0}
+.filters legend{
+  font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);padding:0 0 10px;
+}
+.f-check{
+  display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;
+  font-size:.88rem;min-height:38px;
+}
+.f-check input{
+  width:16px;height:16px;flex:none;accent-color:var(--ink);cursor:pointer;margin:0;
+}
+.f-check span{flex:1;color:var(--body)}
+.f-check b{color:var(--muted);font-size:.78rem;font-weight:600}
+.f-check:hover span{color:var(--ink)}
+.f-check input:checked+span{color:var(--ink);font-weight:600}
+.filters-note{
+  font-size:.78rem;color:var(--muted);line-height:1.6;
+  margin:20px 0 0;padding-top:16px;border-top:1px solid var(--line);
+}
+.result-count{font-size:.88rem;color:var(--muted);margin:0 0 22px}
+.result-count b{color:var(--ink)}
+/* A card hidden by the filters leaves the layout entirely, so the grid
+   reflows rather than leaving gaps. */
+.p-card[hidden]{display:none}
+
+/* ---------- category page ---------- */
+.cat-intro{display:grid;grid-template-columns:1.5fr .85fr;gap:52px;align-items:start}
+.cat-intro-text h2{font-size:1.9rem}
+.cat-intro-text>p{font-size:1.02rem;margin-bottom:24px}
+.cat-intro-side{
+  border:1px solid var(--line);border-radius:var(--radius-lg);
+  padding:26px;background:var(--bg-alt);
+}
+.cat-intro-side h3{font-size:.7rem;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.line-list{list-style:none;margin:0 0 20px;padding:0;display:grid;gap:10px}
+.line-list li{font-size:.86rem;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.line-list li:last-child{border-bottom:0;padding-bottom:0}
+.line-list b{color:var(--ink);font-weight:700}
+
+/* ---------- product detail ---------- */
+.p-detail{padding:44px 0 8px;background:var(--bg-alt);border-bottom:1px solid var(--line)}
+.p-detail .crumbs{margin-bottom:28px}
+.p-detail-grid{
+  display:grid;grid-template-columns:.95fr 1.05fr;gap:52px;
+  align-items:start;padding-bottom:52px;
+}
+.p-visual{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:330px;background:#fff;border:1px solid var(--line);
+  border-radius:var(--radius-lg);padding:40px;
+}
+.p-visual .ico{color:var(--ink);opacity:.42}
+.p-visual .ico svg{width:96px;height:96px}
+.p-visual-cap{
+  margin:26px 0 0;font-size:.72rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);text-align:center;
+}
+.p-buy h1{font-size:clamp(1.8rem,3vw,2.5rem);margin-bottom:14px}
+.p-buy .lead{font-size:1.02rem;margin-bottom:26px}
+.p-spec-key{list-style:none;margin:0 0 28px;padding:0;
+  border:1px solid var(--line);border-radius:var(--radius-lg);background:#fff}
+.p-spec-key li{display:flex;justify-content:space-between;gap:16px;
+  padding:12px 20px;font-size:.88rem;border-bottom:1px solid var(--line)}
+.p-spec-key li:last-child{border-bottom:0}
+.p-spec-key-head{
+  font-size:.68rem!important;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);background:var(--bg-alt);
+}
+.p-spec-key span{color:var(--muted)}
+.p-spec-key b{color:var(--ink);font-weight:600;text-align:end}
+.p-buy-actions{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.p-buy-note{
+  display:flex;gap:10px;font-size:.82rem;color:var(--muted);
+  line-height:1.6;margin:0 0 14px;
+}
+.p-buy-note svg{width:16px;height:16px;flex:none;margin-top:3px}
+.p-buy-lines{font-size:.84rem;color:var(--body);margin:0}
+.p-buy-lines b{color:var(--ink)}
+
+.p-info{display:grid;grid-template-columns:1.6fr .8fr;gap:52px;align-items:start}
+
+/* ---------- spec table ---------- */
+.spec-table{width:100%;border-collapse:collapse;
+  border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}
+.spec-table caption{
+  text-align:start;font-family:var(--display);font-size:1.3rem;font-weight:700;
+  color:var(--ink);padding-bottom:16px;
+}
+.spec-table th,.spec-table td{padding:14px 20px;font-size:.9rem;text-align:start;
+  border-bottom:1px solid var(--line)}
+.spec-table tr:last-child th,.spec-table tr:last-child td{border-bottom:0}
+.spec-table th{
+  width:40%;font-weight:600;color:var(--muted);background:var(--bg-alt);
+  border-inline-end:1px solid var(--line);
+}
+.spec-table td{color:var(--ink);font-weight:500}
+
+/* ---------- brands ---------- */
+.brand-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.brand-chip{
+  display:flex;flex-direction:column;gap:4px;padding:20px;
+  border:1px solid var(--line);border-radius:var(--radius);background:#fff;
+  transition:all .22s var(--ease);
+}
+.brand-chip:hover{border-color:var(--ink);box-shadow:var(--shadow-sm);transform:translateY(-3px)}
+.brand-chip b{font-family:var(--display);font-size:1.25rem;letter-spacing:.02em;color:var(--ink)}
+.brand-chip small{font-size:.8rem;color:var(--muted);line-height:1.5}
+
+.brand-grid{gap:20px}
+.brand-card{
+  display:flex;flex-direction:column;padding:28px;background:#fff;
+  border:1px solid var(--line);border-radius:var(--radius-lg);
+}
+.brand-card h3{font-family:var(--display);font-size:1.5rem;margin-bottom:8px}
+.brand-card p{font-size:.88rem;flex:1;margin-bottom:16px}
+.brand-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.tag{
+  display:inline-block;padding:5px 11px;border-radius:999px;
+  border:1px solid var(--line);background:var(--bg-alt);
+  font-size:.74rem;font-weight:600;color:var(--body);
+}
+.tag:hover{border-color:var(--ink);color:var(--ink)}
+.brand-count{font-size:.78rem;color:var(--muted);font-weight:600}
+.brand-count b{color:var(--ink)}
+
+/* ---------- steps (numbered process rows) ---------- */
+.step-n{
+  font-family:var(--display);font-size:2.6rem;font-weight:700;line-height:1;
+  color:var(--accent-ghost);display:block;margin-bottom:10px;
+}
+.step h3{font-size:1.08rem;margin-bottom:8px}
+.steps--compact{
+  grid-template-columns:1fr;gap:22px;list-style:none;margin:0;padding:0;
+}
+.steps--compact .step{display:flex;gap:16px;padding-top:0}
+.steps--compact .step::after{display:none}
+.steps--compact .step-n{font-size:1.6rem;margin-bottom:0;flex:none}
+.steps--compact .step h3{font-size:.98rem;margin-bottom:4px}
+.steps--compact .step p{font-size:.86rem}
+
+/* ---------- quote page ---------- */
+.quote-wrap{display:grid;grid-template-columns:1.55fr .85fr;gap:52px;align-items:start}
+.quote-list-head{
+  display:flex;align-items:baseline;justify-content:space-between;gap:16px;
+  padding-bottom:16px;border-bottom:2px solid var(--ink);margin-bottom:0;
+}
+.quote-list-head h2{margin:0;font-size:1.5rem}
+.quote-list{list-style:none;margin:0 0 36px;padding:0}
+.q-item{
+  display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:center;
+  padding:18px 0;border-bottom:1px solid var(--line);
+}
+.q-item-text{min-width:0}
+.q-item-text b{display:block;font-size:.98rem;color:var(--ink);font-weight:600;line-height:1.35}
+.q-item-text small{font-size:.78rem;color:var(--muted)}
+.q-qty{display:flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:var(--radius)}
+.q-qty button{
+  width:34px;height:34px;border:0;background:none;cursor:pointer;
+  font-size:1.05rem;line-height:1;color:var(--ink);
+}
+.q-qty button:hover{background:var(--bg-alt)}
+.q-qty input{
+  width:42px;height:34px;border:0;border-inline:1px solid var(--line);
+  text-align:center;font:inherit;font-size:.88rem;font-weight:600;color:var(--ink);
+  -moz-appearance:textfield;appearance:textfield;
+}
+.q-qty input::-webkit-outer-spin-button,
+.q-qty input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.q-remove{
+  background:none;border:0;padding:8px;cursor:pointer;color:var(--muted);
+  display:inline-flex;min-width:40px;min-height:40px;align-items:center;justify-content:center;
+}
+.q-remove:hover{color:var(--ink)}
+.q-remove svg{width:15px;height:15px}
+
+.quote-form{margin-top:8px;padding-top:36px;border-top:1px solid var(--line)}
+.quote-form h2{font-size:1.35rem;margin-bottom:24px}
+
+/* ---------- forms ---------- */
+.form .f-row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.form .field{margin-bottom:20px}
+.form label{display:block;font-size:.8rem;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink);margin-bottom:8px}
+.form input,.form select,.form textarea{
+  width:100%;padding:13px 15px;font:inherit;font-size:.95rem;color:var(--ink);
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  transition:border-color .2s var(--ease);
+}
+.form input:focus,.form select:focus,.form textarea:focus{
+  outline:none;border-color:var(--ink);box-shadow:0 0 0 3px var(--accent-soft);
+}
+.form textarea{resize:vertical;min-height:120px}
+/* No red in this palette: an invalid field is marked by weight, a heavier
+   border, an inset rule and a glyph instead. */
+.form .is-invalid input,.form .is-invalid select,.form .is-invalid textarea{
+  border-color:var(--ink);border-width:2px;box-shadow:inset 3px 0 0 var(--ink);
+}
+.form .err{font-size:.82rem;font-weight:600;color:var(--ink);margin:8px 0 0;display:none}
+.form .is-invalid .err{display:flex;align-items:center;gap:6px}
+.form .is-invalid .err::before{content:"!";
+  display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;border:1.5px solid var(--ink);border-radius:50%;
+  font-size:.7rem;font-weight:700;flex:none}
+.form .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.form-note{font-size:.82rem;color:var(--muted);margin:16px 0 0;line-height:1.6}
+.form-msg{font-size:.9rem;font-weight:600;color:var(--ink);margin:16px 0 0}
+.form-msg:empty{margin:0}
+
+/* ---------- contact ---------- */
+.contact-wrap{display:grid;grid-template-columns:1.5fr .9fr;gap:52px;align-items:start}
+.contact-cards{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.contact-aside{
+  border:1px solid var(--line);border-radius:var(--radius-lg);
+  padding:32px;background:var(--bg-alt);
+}
+.contact-aside h2{font-size:1.4rem;margin-bottom:12px}
+.contact-aside p{font-size:.92rem;margin-bottom:22px}
+
+/* ---------- 404 ---------- */
+.nf{text-align:center;padding:110px 0}
+.nf-code{font-family:var(--display);font-size:clamp(5rem,14vw,9rem);font-weight:700;
+  line-height:1;color:rgba(255,255,255,.14);margin:0 0 8px}
+.nf h1{font-size:clamp(1.8rem,3.4vw,2.6rem);color:#fff}
+.nf .lead{color:#b4b4b4;max-width:520px;margin-inline:auto}
+.nf .btn-row{justify-content:center;margin-top:30px}
+.nf-links{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:36px}
+
+/* ---------- tile grid (two-up feature rows) ---------- */
+.tile-grid{gap:28px}
+
+/* ==========================================================================
+   Catalogue — responsive
+   ========================================================================== */
+@media (max-width:1040px){
+  .catalogue-wrap{grid-template-columns:1fr;gap:28px}
+  /* The sidebar stops being a sidebar: it becomes a normal block above the
+     results, so the filters are still reachable without a modal. */
+  .filters{position:static}
+  .filters fieldset{display:flex;flex-wrap:wrap;gap:4px 18px;padding-top:14px}
+  .filters legend{width:100%}
+  .f-check{padding:6px 0}
+  .p-detail-grid,.p-info,.quote-wrap,.cat-intro,.contact-wrap{
+    grid-template-columns:1fr;gap:36px;
+  }
+  .hero--catalogue .wrap{grid-template-columns:1fr;gap:44px}
+  .hero-pick{max-width:560px}
+}
+
+@media (max-width:768px){
+  .hero--catalogue{padding:62px 0 68px}
+  .cat-grid,.brand-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .brand-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .p-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .contact-cards{grid-template-columns:1fr}
+  .quote-btn .quote-btn-text{display:none}
+  .quote-btn{padding:11px 13px}
+  .nf{padding:76px 0}
+}
+
+@media (max-width:640px){
+  .p-grid,.cat-grid,.brand-grid{grid-template-columns:1fr}
+  .form .f-row{grid-template-columns:1fr;gap:0}
+  .p-card-foot{flex-direction:column;align-items:stretch}
+  .p-card-foot .btn{justify-content:center}
+  .p-card-foot .more{text-align:center}
+  .q-item{grid-template-columns:1fr auto;gap:12px}
+  .q-item-text{grid-column:1 / -1}
+  .spec-table th{width:46%}
+  .spec-table th,.spec-table td{padding:12px 14px;font-size:.86rem}
+  .p-visual{min-height:220px;padding:30px}
+  .p-visual .ico svg{width:64px;height:64px}
+  .hero-pick{padding:20px}
+  .empty{padding:44px 20px}
+}
+
+@media (max-width:400px){
+  .brand-row{grid-template-columns:1fr}
+}
+
+/* ==========================================================================
+   Catalogue — right-to-left
+   --------------------------------------------------------------------------
+   Logical properties (margin-inline, text-align:start, border-inline-end)
+   handle most of this sheet. Only what direction alone cannot mirror needs a
+   rule: physical offsets and the arrow nudges.
+   ========================================================================== */
+[dir="rtl"] .pick:hover{transform:translateX(-4px)}
+[dir="rtl"] .cat-card:hover .cat-count svg{transform:translateX(-4px)}
+[dir="rtl"] .p-spec-key li,
+[dir="rtl"] .p-spec-mini li{flex-direction:row}
+[dir="rtl"] .form .is-invalid input,
+[dir="rtl"] .form .is-invalid select,
+[dir="rtl"] .form .is-invalid textarea{box-shadow:inset -3px 0 0 var(--ink)}

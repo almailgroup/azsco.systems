@@ -5,98 +5,392 @@
     <loc>https://www.azsco.systems/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/"/>
-    <lastmod>2026-09-19</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.azsco.systems/ar/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/"/>
-    <lastmod>2026-09-19</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.azsco.systems/services/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/services/"/>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/services/"/>
-    <lastmod>2026-09-19</lastmod>
+    <loc>https://www.azsco.systems/products/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/"/>
+    <lastmod>2026-09-21</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.azsco.systems/ar/services/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/services/"/>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/services/"/>
-    <lastmod>2026-09-19</lastmod>
+    <loc>https://www.azsco.systems/ar/products/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/"/>
+    <lastmod>2026-09-21</lastmod>
     <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/video-surveillance/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/video-surveillance/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/video-surveillance/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/video-surveillance/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/video-surveillance/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/video-surveillance/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/intrusion-fire/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/intrusion-fire/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/intrusion-fire/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/intrusion-fire/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/intrusion-fire/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/intrusion-fire/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/access-control/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/access-control/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/access-control/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/access-control/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/access-control/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/access-control/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/radio-networking/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/radio-networking/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/radio-networking/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/radio-networking/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/radio-networking/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/radio-networking/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/video-surveillance/ip-bullet-camera-4k/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/video-surveillance/ip-bullet-camera-4k/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/video-surveillance/ip-bullet-camera-4k/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/video-surveillance/ip-bullet-camera-4k/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/video-surveillance/ip-bullet-camera-4k/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/video-surveillance/ip-bullet-camera-4k/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/video-surveillance/ip-dome-camera-4k/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/video-surveillance/ip-dome-camera-4k/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/video-surveillance/ip-dome-camera-4k/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/video-surveillance/ip-dome-camera-4k/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/video-surveillance/ip-dome-camera-4k/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/video-surveillance/ip-dome-camera-4k/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/video-surveillance/ptz-camera-25x/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/video-surveillance/ptz-camera-25x/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/video-surveillance/ptz-camera-25x/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/video-surveillance/ptz-camera-25x/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/video-surveillance/ptz-camera-25x/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/video-surveillance/ptz-camera-25x/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/video-surveillance/nvr-16-channel/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/video-surveillance/nvr-16-channel/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/video-surveillance/nvr-16-channel/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/video-surveillance/nvr-16-channel/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/video-surveillance/nvr-16-channel/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/video-surveillance/nvr-16-channel/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/intrusion-fire/wireless-alarm-hub/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/intrusion-fire/wireless-alarm-hub/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/intrusion-fire/wireless-alarm-hub/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/intrusion-fire/wireless-alarm-hub/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/intrusion-fire/wireless-alarm-hub/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/intrusion-fire/wireless-alarm-hub/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/intrusion-fire/wireless-motion-detector/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/intrusion-fire/wireless-motion-detector/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/intrusion-fire/wireless-motion-detector/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/intrusion-fire/wireless-motion-detector/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/intrusion-fire/wireless-motion-detector/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/intrusion-fire/wireless-motion-detector/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/intrusion-fire/door-window-contact/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/intrusion-fire/door-window-contact/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/intrusion-fire/door-window-contact/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/intrusion-fire/door-window-contact/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/intrusion-fire/door-window-contact/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/intrusion-fire/door-window-contact/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/intrusion-fire/smoke-heat-detector/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/intrusion-fire/smoke-heat-detector/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/intrusion-fire/smoke-heat-detector/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/intrusion-fire/smoke-heat-detector/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/intrusion-fire/smoke-heat-detector/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/intrusion-fire/smoke-heat-detector/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/access-control/four-door-controller/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/access-control/four-door-controller/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/access-control/four-door-controller/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/access-control/four-door-controller/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/access-control/four-door-controller/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/access-control/four-door-controller/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/access-control/fingerprint-card-reader/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/access-control/fingerprint-card-reader/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/access-control/fingerprint-card-reader/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/access-control/fingerprint-card-reader/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/access-control/fingerprint-card-reader/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/access-control/fingerprint-card-reader/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/access-control/time-attendance-terminal/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/access-control/time-attendance-terminal/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/access-control/time-attendance-terminal/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/access-control/time-attendance-terminal/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/access-control/time-attendance-terminal/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/access-control/time-attendance-terminal/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/access-control/tripod-turnstile/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/access-control/tripod-turnstile/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/access-control/tripod-turnstile/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/access-control/tripod-turnstile/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/access-control/tripod-turnstile/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/access-control/tripod-turnstile/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/radio-networking/digital-two-way-radio/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/radio-networking/digital-two-way-radio/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/radio-networking/digital-two-way-radio/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/radio-networking/digital-two-way-radio/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/radio-networking/digital-two-way-radio/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/radio-networking/digital-two-way-radio/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/radio-networking/lte-network-radio/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/radio-networking/lte-network-radio/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/radio-networking/lte-network-radio/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/radio-networking/lte-network-radio/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/radio-networking/lte-network-radio/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/radio-networking/lte-network-radio/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/radio-networking/industrial-lte-router/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/radio-networking/industrial-lte-router/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/radio-networking/industrial-lte-router/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/radio-networking/industrial-lte-router/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/radio-networking/industrial-lte-router/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/radio-networking/industrial-lte-router/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/products/radio-networking/managed-poe-switch-16/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/radio-networking/managed-poe-switch-16/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/radio-networking/managed-poe-switch-16/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/products/radio-networking/managed-poe-switch-16/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/products/radio-networking/managed-poe-switch-16/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/products/radio-networking/managed-poe-switch-16/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/brands/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/brands/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/brands/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/brands/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/brands/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/brands/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/support/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/support/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/support/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.azsco.systems/ar/support/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/support/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/support/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.azsco.systems/about/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/about/"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/about/"/>
-    <lastmod>2026-09-19</lastmod>
-    <priority>0.8</priority>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.azsco.systems/ar/about/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/about/"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/about/"/>
-    <lastmod>2026-09-19</lastmod>
-    <priority>0.8</priority>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.azsco.systems/contact/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/contact/"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/contact/"/>
-    <lastmod>2026-09-19</lastmod>
-    <priority>0.8</priority>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.azsco.systems/ar/contact/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/contact/"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/contact/"/>
-    <lastmod>2026-09-19</lastmod>
-    <priority>0.8</priority>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.azsco.systems/partners/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/partners/"/>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/partners/"/>
-    <lastmod>2026-09-19</lastmod>
-    <priority>0.6</priority>
+    <loc>https://www.azsco.systems/quote/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/quote/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/quote/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.azsco.systems/ar/partners/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/partners/"/>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/partners/"/>
-    <lastmod>2026-09-19</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.azsco.systems/clients/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/clients/"/>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/clients/"/>
-    <lastmod>2026-09-19</lastmod>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.azsco.systems/ar/clients/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/clients/"/>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/clients/"/>
-    <lastmod>2026-09-19</lastmod>
-    <priority>0.6</priority>
+    <loc>https://www.azsco.systems/ar/quote/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/quote/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/quote/"/>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.azsco.systems/privacy-policy/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/privacy-policy/"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/privacy-policy/"/>
-    <lastmod>2026-09-19</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://www.azsco.systems/ar/privacy-policy/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://www.azsco.systems/privacy-policy/"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.azsco.systems/ar/privacy-policy/"/>
-    <lastmod>2026-09-19</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <priority>0.3</priority>
   </url>
 </urlset>

@@ -52,21 +52,38 @@ COMPANY
 - Certified ISO 9001:2015 for quality management, and compliant with
   Anti-Money Laundering standards.
 
-WHAT AZSCO DOES
-AZSCO provides security manpower and security systems. Services:
-- Facility Guarding: trained, uniformed officers guarding apartments, malls,
-  banks, stores, offices, compounds, industrial sites and events.
-- VIP Protection & Rapid Intervention: physically and technically qualified
-  personal guards for individuals needing a high level of security, plus
-  rapid-intervention response to critical sites.
-- Central Operations Room: a 24/7 monitoring and communications room that
-  keeps continuous contact with every AZSCO-guarded site and dispatches a
-  rapid response to any incident.
-- Security Patrols: scheduled patrols by trained officers equipped with the
-  necessary tools, reinforcing the security of guarded sites and areas.
-- Security Systems: advanced, site-specific systems -- surveillance cameras
-  and fire and theft alarm systems -- installed and monitored by AZSCO, with
-  alerts routed to the Central Operations Room for rapid patrol intervention.
+WHAT AZSCO SELLS
+AZSCO supplies, installs and maintains security systems, and also provides
+security manpower. The website is a product catalogue in four categories:
+- Video Surveillance: IP cameras (bullet, vandal-resistant dome, PTZ with
+  optical zoom) and network video recorders with RAID storage.
+- Intrusion & Fire: wireless alarm control hubs, motion detectors, door and
+  window contacts, and combined smoke and heat detectors.
+- Access Control: multi-door controllers, fingerprint and card readers, time
+  and attendance terminals, and tripod turnstiles.
+- Radio & Networking: digital two-way radios, LTE network radios, industrial
+  cellular routers, and managed PoE switches.
+
+HOW BUYING WORKS
+- There are no prices on the site or in this chat. Security systems are quoted
+  per site because cabling, mounting, power, existing infrastructure and device
+  count all change the figure.
+- The normal sequence is: free site survey, then a written quote covering
+  equipment, installation and the first year of maintenance as one package.
+- Visitors add products to a quote list on the site and send it with their site
+  details. The list is stored in their own browser until they submit it.
+- Catalogue entries describe the class of equipment AZSCO specifies, not a fixed
+  manufacturer part number. The exact model is chosen after the survey.
+- AZSCO prefers to install what it supplies, and does not warrant an
+  installation it did not carry out. It can often take over and maintain a
+  system installed by someone else after surveying it.
+
+SERVICES ALONGSIDE THE PRODUCTS
+- Facility Guarding, VIP Protection & Rapid Intervention, Security Patrols, and
+  a 24/7 Central Operations Room that monitors guarded and alarmed sites and
+  dispatches a rapid response.
+- Installation, commissioning, scheduled preventive maintenance, warranty on
+  both equipment and installation work, and staff training.
 
 OTHER FACTS
 - Officers are screened, licensed, uniformed, trained (first aid,
@@ -76,12 +93,10 @@ OTHER FACTS
   Chadian, Nigerian, Nepalese and stateless individuals.
 - Serves government, commercial, financial, industrial, residential and many
   other sectors across Kuwait.
-- Technology partners whose equipment powers AZSCO's Security Systems service
-  and Central Operations Room monitoring: Ajax, Rasilient, Avigilon,
-  Teltonika, Inrico, Hikvision, Pelco and Motorola.
+- The eight manufacturer lines behind the catalogue: Ajax, Rasilient,
+  Avigilon, Teltonika, Inrico, Hikvision, Pelco and Motorola.
 - Clients include Radisson Blu Hotel Kuwait, Millennium Hotels and Resorts,
-  Kuwait Ports Authority, Alghanim Industries and Alnasser, among others --
-  see the Clients page for more.
+  Kuwait Ports Authority, Alghanim Industries and Alnasser, among others.
 - A free site survey is the normal first step for a new enquiry.
 `;
 
